@@ -12,11 +12,13 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.ResourceBundle;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -29,6 +31,12 @@ import javax.crypto.NoSuchPaddingException;
  */
 public class HomeFrameController implements Initializable {
 
+    ArrayList fileList;
+    public static ObservableList <Document> obsDocumentList;
+       
+    @FXML
+    private ListView lvDocument;
+    
     @FXML
     private Button importButton, exportButton, editButton;
     
@@ -36,7 +44,6 @@ public class HomeFrameController implements Initializable {
     private Label labelChosedFiles, labelMetadata;
     
     Encryption encryption = new Encryption();
-
 
     @FXML
     void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException {
@@ -76,7 +83,26 @@ public class HomeFrameController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dateString = "2018-02-01";
+        Date dateObject = new Date();
+        try {
+            dateObject = sdf.parse(dateString);
+        } catch (ParseException ex) {
+            Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        fileList = new ArrayList();
+        fileList.add(new Document(1, "Cooper", ".txt", "54kb", dateObject, dateObject));
+        fileList.add(new Document(2, "Rose", ".doc", "100kb", dateObject, dateObject));
+        fileList.add(new Document(3, "Magnus", ".jpg", "12kb", dateObject, dateObject));
+        
+        obsDocumentList = FXCollections.observableArrayList(fileList);
+        lvDocument.setItems(obsDocumentList);
+        
     }
 
 }
+
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
