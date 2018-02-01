@@ -15,10 +15,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -32,6 +30,9 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javax.crypto.NoSuchPaddingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * FXML Controller class
@@ -53,9 +54,11 @@ public class HomeFrameController implements Initializable {
     private Label labelChosenFiles, labelMetadata;
     
     @FXML private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated;
+    
+    Encryption encryption = new Encryption();
 
     @FXML
-    void handleImportButton(ActionEvent event) {
+    void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
         //Opens file chooser
@@ -67,11 +70,14 @@ public class HomeFrameController implements Initializable {
         
         if (list != null){
             for (File file : list){
-                copyFile(file);
-            }
-            
+                String filePath = "./DKDocuments/" + file.getName();
+                String encryptedFilePath = filePath.substring(0, filePath.lastIndexOf('.'));
+                String encryptedFilePathEnding = encryptedFilePath + ".encoded";
+                
+                File encryptedFile = new File(encryptedFilePathEnding);
+                encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
+            }          
         }
-
     }
     
     @FXML
