@@ -8,11 +8,19 @@ package document.keeper;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -23,6 +31,8 @@ import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javax.crypto.NoSuchPaddingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * FXML Controller class
@@ -41,7 +51,9 @@ public class HomeFrameController implements Initializable {
     private Button importButton, exportButton, editButton;
     
     @FXML
-    private Label labelChosedFiles, labelMetadata;
+    private Label labelChosenFiles, labelMetadata;
+    
+    @FXML private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated;
     
     Encryption encryption = new Encryption();
 
@@ -77,7 +89,40 @@ public class HomeFrameController implements Initializable {
     void handleEditButton(ActionEvent event) {
         
     }
-     
+    
+    private void copyFile(File file) {
+        //Creates destination for copied file based on it's default name
+        String destFileName = "./DKDocuments/" + file.getName();
+        
+        try {
+            File dest = new File(destFileName);
+
+            Files.copy(file.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            Logger.getLogger(
+                HomeFrameController.class.getName()).log(
+                    Level.SEVERE, null, ex
+                );
+        }
+    }
+    
+    @FXML private void lvDocumentSelected() {
+        //Dessa är osynliga tills man väljer ett dokument i vyn
+        lblTitle.setVisible(true);
+        lblType.setVisible(true);
+        lblFileSize.setVisible(true);
+        lblDateImported.setVisible(true);
+        lblDateCreated.setVisible(true);
+        
+        Document documentSelected = (Document) fileList.get(lvDocument.getSelectionModel().getSelectedIndex());
+        
+        lblTitle.setText("Title: " + documentSelected.getTitle());
+        lblType.setText("Type: " + documentSelected.getType());
+        lblFileSize.setText("File size: " + documentSelected.getFile_size());
+        lblDateImported.setText("Date imported: " + documentSelected.getDate_imported());
+        lblDateCreated.setText("Date created: " + documentSelected.getDate_created());
+    }
+    
     /**
      * Initializes the controller class.
      */
@@ -103,6 +148,3 @@ public class HomeFrameController implements Initializable {
     }
 
 }
-
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
