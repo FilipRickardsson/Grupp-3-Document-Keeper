@@ -33,6 +33,7 @@ import javafx.stage.Stage;
 import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import javafx.scene.control.TextField;
 
 /**
  * FXML Controller class
@@ -40,12 +41,16 @@ import java.security.NoSuchAlgorithmException;
  * @author Allan
  */
 public class HomeFrameController implements Initializable {
-
+    
+    DBConnection dbConnection;
     ArrayList fileList;
     public static ObservableList <Document> obsDocumentList;
        
     @FXML
     private ListView lvDocument;
+    
+    @FXML
+    private TextField tfSearch;
     
     @FXML
     private Button importButton, exportButton, editButton;
@@ -123,11 +128,20 @@ public class HomeFrameController implements Initializable {
         lblDateCreated.setText("Date created: " + documentSelected.getDate_created());
     }
     
+    @FXML
+    private void search() {
+        
+    }
+    
     /**
      * Initializes the controller class.
      */
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        
+        dbConnection = new DBConnection();
+        
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = "2018-02-01";
         Date dateObject = new Date();
