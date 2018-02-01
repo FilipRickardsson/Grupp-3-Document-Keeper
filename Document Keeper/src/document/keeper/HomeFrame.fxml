@@ -44,7 +44,7 @@
                                  <children>
                                     <HBox spacing="20.0">
                                        <children>
-                                          <TextField prefHeight="26.0" prefWidth="230.0" promptText="Search..." />
+                                          <TextField fx:id="tfSearch" onKeyReleased="#search" prefHeight="26.0" prefWidth="230.0" promptText="Search..." />
                                           <Button mnemonicParsing="false" text="Clear Search" />
                                        </children>
                                     </HBox>

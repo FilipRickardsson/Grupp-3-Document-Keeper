@@ -7,23 +7,31 @@ package document.keeper;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TextField;
 
 /**
  * FXML Controller class
  *
  * @author Allan
  */
-public class HomeFrameController implements Initializable
-{
+public class HomeFrameController implements Initializable {
 
-    /**
-     * Initializes the controller class.
-     */
+    DBConnection dbConnection;
+
+    @FXML
+    private TextField tfSearch;
+
+    @FXML
+    private void search() {
+        
+    }
+
     @Override
-    public void initialize(URL url, ResourceBundle rb)
-    {
-        // TODO
-    }    
-    
+    public void initialize(URL url, ResourceBundle rb) {
+        dbConnection = new DBConnection();
+
+    }
+
 }
