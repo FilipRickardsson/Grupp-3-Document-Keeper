@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +34,8 @@ public class HomeFrameController implements Initializable {
 
     @FXML
     private Button importButton;
+    
+    private Desktop desktop = Desktop.getDesktop();
 
     @FXML
     void handleImportButton(ActionEvent event) {
@@ -44,22 +45,24 @@ public class HomeFrameController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Import files");
 
-        List<File> list = fileChooser.showOpenMultipleDialog(stage);
-        
-        if (list != null){
-            for (File file : list){
-                copyFile(file);
-            }
-            
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        System.out.println("selected file " + selectedFile);
+
+        //Copies selected file(s) to directory
+        if (selectedFile != null) {
+            //copy(selectedFile.getAbsolutePath(), "./DKDocuments");
+            System.out.println("Skriver något?");
+            openFile(selectedFile);
+           
         }
 
     }
-    private void copyFile(File file) {
-        //Creates destination for copied file based on it's default name
-        String destFileName = "./DKDocuments/" + file.getName();
-        
+
+    private void openFile(File file) {
         try {
-            File dest = new File(destFileName);
+            //desktop.open(file);
+            File dest = new File("./DKDocuments/bild");
+            System.out.println("dest " + dest);
 
             Files.copy(file.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
@@ -70,6 +73,35 @@ public class HomeFrameController implements Initializable {
         }
     }
     
+    public void copy(String from, String to) {
+        FileReader fileReader = null;
+        FileWriter fileWriter = null;
+        try {
+            fileReader = new FileReader(from);
+            fileWriter = new FileWriter(to);
+            int c = fileReader.read();
+            while (c != -1) {
+                fileWriter.write(c);
+                c = fileReader.read();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close(fileReader);
+            close(fileWriter);
+        }
+    }
+
+    public static void close(Closeable stream) {
+        try {
+            if (stream != null) {
+                stream.close();
+            }
+        } catch (IOException e) {
+            //...
+        }
+    }
+
     /**
      * Initializes the controller class.
      */
