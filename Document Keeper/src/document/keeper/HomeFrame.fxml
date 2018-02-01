@@ -21,8 +21,8 @@
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                      </padding>
                      <children>
-                        <Button mnemonicParsing="false" prefHeight="123.0" prefWidth="118.0" text="New" />
-                        <Button fx:id="importButton" mnemonicParsing="false" onAction="#handleImportButton" prefHeight="123.0" prefWidth="118.0" text="Import">
+                        <Button mnemonicParsing="false" prefHeight="45.0" prefWidth="118.0" text="New" />
+                        <Button fx:id="importButton" mnemonicParsing="false" onAction="#handleImportButton" prefHeight="45.0" prefWidth="118.0" text="Import">
                            <HBox.margin>
                               <Insets left="40.0" />
                            </HBox.margin>
@@ -58,7 +58,21 @@
                               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                            </padding>
                            <children>
-                              <Pane prefHeight="675.0" prefWidth="908.0" style="-fx-background-color: 55;" />
+                              <Pane prefHeight="675.0" prefWidth="908.0" style="-fx-background-color: 55;">
+                                 <children>
+                                    <Label fx:id="labelChosedFiles" layoutX="29.0" layoutY="55.0" text="Chosed files" />
+                                    <Label fx:id="labelMetadata" layoutX="29.0" layoutY="196.0" text="Metadata" />
+                                    <VBox layoutX="745.0" layoutY="560.0">
+                                       <children>
+                                          <Button fx:id="exportButton" layoutX="691.0" layoutY="509.0" mnemonicParsing="false" onAction="#handleExporttButton" prefHeight="45.0" prefWidth="118.0" text="Export">
+                                             <VBox.margin>
+                                                <Insets bottom="10.0" />
+                                             </VBox.margin>
+                                          </Button>
+                                          <Button fx:id="editButton" layoutX="691.0" layoutY="567.0" mnemonicParsing="false" onAction="#handleEditButton" prefHeight="45.0" prefWidth="118.0" text="Edit" />
+                                       </children>
+                                    </VBox>
+                                 </children></Pane>
                            </children>
                         </HBox>
                      </children>
