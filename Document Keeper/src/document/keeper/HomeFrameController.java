@@ -5,11 +5,7 @@
  */
 package document.keeper;
 
-import java.awt.Desktop;
-import java.io.Closeable;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -23,6 +19,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -34,7 +31,11 @@ import javafx.stage.Stage;
 public class HomeFrameController implements Initializable {
 
     @FXML
-    private Button importButton;
+    private Button importButton, exportButton, editButton;
+    
+    @FXML
+    private Label labelChosedFiles, labelMetadata;
+
 
     @FXML
     void handleImportButton(ActionEvent event) {
@@ -55,6 +56,17 @@ public class HomeFrameController implements Initializable {
         }
 
     }
+    
+    @FXML
+    void handleExportButton(ActionEvent event) {
+        
+    }
+    
+     @FXML
+    void handleEditButton(ActionEvent event) {
+        
+    }
+    
     private void copyFile(File file) {
         //Creates destination for copied file based on it's default name
         String destFileName = "./DKDocuments/" + file.getName();
