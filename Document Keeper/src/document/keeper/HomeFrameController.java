@@ -40,10 +40,7 @@ public class HomeFrameController implements Initializable {
 
     ArrayList fileList;
     public static ObservableList <Document> obsDocumentList;
-    
-    @FXML
-    private Button importButton;
-    
+       
     @FXML
     private ListView lvDocument;
     
