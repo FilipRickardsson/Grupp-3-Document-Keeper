@@ -17,6 +17,7 @@
 *.zip
 *.tar.gz
 *.rar
+*.DS_Store
 
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
@@ -25,3 +26,7 @@ hs_err_pid*
 /Document\ Keeper/dist/
 /Document\ Keeper/nbproject/private/
 /Document\ Keeper/DB/
+# exclude everything
+/Document\ Keeper/DKDocuments/*
+#exception to the rule
+!/Document\ Keeper/DKDocuments/gitkeep
