@@ -68,7 +68,7 @@
                                     <Label fx:id="labelMetadata" layoutX="29.0" layoutY="196.0" text="Metadata" />
                                     <VBox layoutX="745.0" layoutY="560.0">
                                        <children>
-                                          <Button fx:id="exportButton" layoutX="691.0" layoutY="509.0" mnemonicParsing="false" onAction="#handleExporttButton" prefHeight="45.0" prefWidth="118.0" text="Export">
+                                          <Button fx:id="exportButton" layoutX="691.0" layoutY="509.0" mnemonicParsing="false" onAction="#handleExportButton" prefHeight="45.0" prefWidth="118.0" text="Export">
                                              <VBox.margin>
                                                 <Insets bottom="10.0" />
                                              </VBox.margin>

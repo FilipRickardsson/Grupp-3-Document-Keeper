@@ -8,12 +8,10 @@ package document.keeper;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,6 +20,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javax.crypto.NoSuchPaddingException;
 
 /**
  * FXML Controller class
@@ -35,10 +34,12 @@ public class HomeFrameController implements Initializable {
     
     @FXML
     private Label labelChosedFiles, labelMetadata;
+    
+    Encryption encryption = new Encryption();
 
 
     @FXML
-    void handleImportButton(ActionEvent event) {
+    void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
         //Opens file chooser
@@ -50,11 +51,14 @@ public class HomeFrameController implements Initializable {
         
         if (list != null){
             for (File file : list){
-                copyFile(file);
-            }
-            
+                String filePath = "./DKDocuments/" + file.getName();
+                String encryptedFilePath = filePath.substring(0, filePath.lastIndexOf('.'));
+                String encryptedFilePathEnding = encryptedFilePath + ".encoded";
+                
+                File encryptedFile = new File(encryptedFilePathEnding);
+                encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
+            }          
         }
-
     }
     
     @FXML
@@ -66,23 +70,7 @@ public class HomeFrameController implements Initializable {
     void handleEditButton(ActionEvent event) {
         
     }
-    
-    private void copyFile(File file) {
-        //Creates destination for copied file based on it's default name
-        String destFileName = "./DKDocuments/" + file.getName();
-        
-        try {
-            File dest = new File(destFileName);
-
-            Files.copy(file.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ex) {
-            Logger.getLogger(
-                HomeFrameController.class.getName()).log(
-                    Level.SEVERE, null, ex
-                );
-        }
-    }
-    
+     
     /**
      * Initializes the controller class.
      */
