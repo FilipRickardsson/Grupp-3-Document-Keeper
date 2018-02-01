@@ -11,6 +11,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 /**
@@ -31,6 +32,9 @@ public class DocumentKeeper extends Application
             @Override
             public void handle(ActionEvent event)
             {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Open Resource File");
+                fileChooser.showOpenDialog(primaryStage);
                 System.out.println("Hello World!");
             }
         });
