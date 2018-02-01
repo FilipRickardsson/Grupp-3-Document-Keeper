@@ -15,8 +15,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -48,7 +50,9 @@ public class HomeFrameController implements Initializable {
     private Button importButton, exportButton, editButton;
     
     @FXML
-    private Label labelChosedFiles, labelMetadata;
+    private Label labelChosenFiles, labelMetadata;
+    
+    @FXML private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated;
 
     @FXML
     void handleImportButton(ActionEvent event) {
@@ -94,6 +98,23 @@ public class HomeFrameController implements Initializable {
                     Level.SEVERE, null, ex
                 );
         }
+    }
+    
+    @FXML private void lvDocumentSelected() {
+        //Dessa är osynliga tills man väljer ett dokument i vyn
+        lblTitle.setVisible(true);
+        lblType.setVisible(true);
+        lblFileSize.setVisible(true);
+        lblDateImported.setVisible(true);
+        lblDateCreated.setVisible(true);
+        
+        Document documentSelected = (Document) fileList.get(lvDocument.getSelectionModel().getSelectedIndex());
+        
+        lblTitle.setText("Title: " + documentSelected.getTitle());
+        lblType.setText("Type: " + documentSelected.getType());
+        lblFileSize.setText("File size: " + documentSelected.getFile_size());
+        lblDateImported.setText("Date imported: " + documentSelected.getDate_imported());
+        lblDateCreated.setText("Date created: " + documentSelected.getDate_created());
     }
     
     /**
