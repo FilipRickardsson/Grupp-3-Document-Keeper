@@ -50,7 +50,7 @@
                                     <HBox spacing="20.0">
                                        <children>
                                           <TextField fx:id="tfSearch" onKeyReleased="#search" prefHeight="26.0" prefWidth="230.0" promptText="Search..." />
-                                          <Button mnemonicParsing="false" text="Clear Search" />
+                                          <Button mnemonicParsing="false" onAction="#handleClearSearchButton" text="Clear Search" />
                                        </children>
                                     </HBox>
                                     <ListView fx:id="lvDocument" onMouseClicked="#lvDocumentSelected" prefHeight="695.0" prefWidth="412.0" />

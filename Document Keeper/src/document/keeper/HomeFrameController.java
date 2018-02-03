@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package document.keeper;
 
 import java.io.File;
@@ -10,11 +5,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -35,28 +25,30 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import javafx.scene.control.TextField;
 
+
 /**
  * FXML Controller class
  *
  * @author Allan
  */
 public class HomeFrameController implements Initializable {
-    
+
     DBConnection dbConnection;
-    ArrayList fileList;
-    public static ObservableList <Document> obsDocumentList;
-       
+
+    @FXML
+    private TextField tfSearch;
+
+    @FXML
+    private ObservableList<Document> obsDocumentList;
+
     @FXML
     private ListView lvDocument;
     
     @FXML
-    private TextField tfSearch;
-    
-    @FXML
     private Button importButton, exportButton, editButton;
-    
+
     @FXML
-    private Label labelChosenFiles, labelMetadata;
+    private Label labelChosedFiles, labelMetadata;
     
     @FXML private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated;
     
@@ -72,27 +64,27 @@ public class HomeFrameController implements Initializable {
 
         //File selectedFile = fileChooser.showOpenDialog(stage);
         List<File> list = fileChooser.showOpenMultipleDialog(stage);
-        
-        if (list != null){
-            for (File file : list){
+
+        if (list != null) {
+            for (File file : list) {
                 String filePath = "./DKDocuments/" + file.getName();
                 String encryptedFilePath = filePath.substring(0, filePath.lastIndexOf('.'));
                 String encryptedFilePathEnding = encryptedFilePath + ".encoded";
-                
+
                 File encryptedFile = new File(encryptedFilePathEnding);
                 encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
-            }          
+            }
         }
     }
-    
+
     @FXML
     void handleExportButton(ActionEvent event) {
-        
+
     }
-    
-     @FXML
+
+    @FXML
     void handleEditButton(ActionEvent event) {
-        
+
     }
     
     private void copyFile(File file) {
@@ -119,7 +111,7 @@ public class HomeFrameController implements Initializable {
         lblDateImported.setVisible(true);
         lblDateCreated.setVisible(true);
         
-        Document documentSelected = (Document) fileList.get(lvDocument.getSelectionModel().getSelectedIndex());
+        Document documentSelected = (Document)lvDocument.getSelectionModel().getSelectedItem();
         
         lblTitle.setText("Title: " + documentSelected.getTitle());
         lblType.setText("Type: " + documentSelected.getType());
@@ -130,18 +122,24 @@ public class HomeFrameController implements Initializable {
     
     @FXML
     private void search() {
-        
+        obsDocumentList.clear();
+        obsDocumentList.addAll(
+                dbConnection.searchForDocumentByTitleOrTag(tfSearch.getText()));
     }
-    
-    /**
-     * Initializes the controller class.
-     */
+
+    @FXML
+    void handleClearSearchButton() {
+        tfSearch.clear();
+        obsDocumentList.clear();
+        obsDocumentList.addAll(
+                dbConnection.getAllDocuments());
+    }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
         dbConnection = new DBConnection();
-        
+
+        /*
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = "2018-02-01";
         Date dateObject = new Date();
@@ -150,15 +148,11 @@ public class HomeFrameController implements Initializable {
         } catch (ParseException ex) {
             Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        fileList = new ArrayList();
-        fileList.add(new Document(1, "Cooper", ".txt", "54kb", dateObject, dateObject));
-        fileList.add(new Document(2, "Rose", ".doc", "100kb", dateObject, dateObject));
-        fileList.add(new Document(3, "Magnus", ".jpg", "12kb", dateObject, dateObject));
-        
-        obsDocumentList = FXCollections.observableArrayList(fileList);
+         */
+        List documentList = dbConnection.getAllDocuments();
+
+        obsDocumentList = FXCollections.observableArrayList(documentList);
         lvDocument.setItems(obsDocumentList);
-        
     }
 
 }

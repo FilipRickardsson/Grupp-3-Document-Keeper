@@ -7,7 +7,7 @@ import java.util.Date;
  * @author Alexiz
  */
 public class Document {
-    
+
     int id;
     String title;
     String type;
@@ -26,10 +26,10 @@ public class Document {
         this.date_imported = date_imported;
         this.date_created = date_created;
     }
-    
+
     @Override
-    public String toString(){
-        return title + type;
+    public String toString() {
+        return title + "." + type;
     }
 
     public int getId() {
@@ -79,5 +79,5 @@ public class Document {
     public void setDate_created(Date date_created) {
         this.date_created = date_created;
     }
-    
+
 }
