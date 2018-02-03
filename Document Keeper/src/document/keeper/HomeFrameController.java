@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package document.keeper;
 
 import java.io.File;
@@ -33,31 +28,32 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javax.crypto.NoSuchPaddingException;
 
-
 /**
  * FXML Controller class
  *
  * @author Allan
  */
 public class HomeFrameController implements Initializable {
-    
+
     DBConnection dbConnection;
-    
+
     @FXML
     private TextField tfSearch;
-    
-    ArrayList fileList;
-    public static ObservableList <Document> obsDocumentList;
-       
+
+    private List documentList;
+
+    @FXML
+    private ObservableList<Document> obsDocumentList;
+
     @FXML
     private ListView lvDocument;
-    
+
     @FXML
     private Button importButton, exportButton, editButton;
-    
+
     @FXML
     private Label labelChosedFiles, labelMetadata;
-    
+
     Encryption encryption = new Encryption();
 
     @FXML
@@ -70,43 +66,49 @@ public class HomeFrameController implements Initializable {
 
         //File selectedFile = fileChooser.showOpenDialog(stage);
         List<File> list = fileChooser.showOpenMultipleDialog(stage);
-        
-        if (list != null){
-            for (File file : list){
+
+        if (list != null) {
+            for (File file : list) {
                 String filePath = "./DKDocuments/" + file.getName();
                 String encryptedFilePath = filePath.substring(0, filePath.lastIndexOf('.'));
                 String encryptedFilePathEnding = encryptedFilePath + ".encoded";
-                
+
                 File encryptedFile = new File(encryptedFilePathEnding);
                 encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
-            }          
+            }
         }
     }
-    
+
     @FXML
     void handleExportButton(ActionEvent event) {
-        
-    }
-    
-     @FXML
-    void handleEditButton(ActionEvent event) {
-        
-    }
-    
-        @FXML
-    private void search() {
-        
+
     }
 
-     
-    /**
-     * Initializes the controller class.
-     */
+    @FXML
+    void handleEditButton(ActionEvent event) {
+
+    }
+
+    @FXML
+    private void search() {
+        obsDocumentList.clear();
+        obsDocumentList.addAll(
+                dbConnection.searchForDocumentByTitleOrTag(tfSearch.getText()));
+    }
+
+    @FXML
+    void handleClearSearchButton() {
+        tfSearch.clear();
+        obsDocumentList.clear();
+        obsDocumentList.addAll(
+                dbConnection.getAllDocuments());
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
         dbConnection = new DBConnection();
-        
+
+        /*
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = "2018-02-01";
         Date dateObject = new Date();
@@ -115,15 +117,11 @@ public class HomeFrameController implements Initializable {
         } catch (ParseException ex) {
             Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        fileList = new ArrayList();
-        fileList.add(new Document(1, "Cooper", ".txt", "54kb", dateObject, dateObject));
-        fileList.add(new Document(2, "Rose", ".doc", "100kb", dateObject, dateObject));
-        fileList.add(new Document(3, "Magnus", ".jpg", "12kb", dateObject, dateObject));
-        
-        obsDocumentList = FXCollections.observableArrayList(fileList);
+         */
+        documentList = dbConnection.getAllDocuments();
+
+        obsDocumentList = FXCollections.observableArrayList(documentList);
         lvDocument.setItems(obsDocumentList);
-        
     }
 
 }
