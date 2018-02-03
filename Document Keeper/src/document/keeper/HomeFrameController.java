@@ -38,8 +38,6 @@ public class HomeFrameController implements Initializable {
     @FXML
     private TextField tfSearch;
 
-    private List documentList;
-
     @FXML
     private ObservableList<Document> obsDocumentList;
 
@@ -113,7 +111,7 @@ public class HomeFrameController implements Initializable {
         lblDateImported.setVisible(true);
         lblDateCreated.setVisible(true);
         
-        Document documentSelected = (Document) fileList.get(lvDocument.getSelectionModel().getSelectedIndex());
+        Document documentSelected = (Document)lvDocument.getSelectionModel().getSelectedItem();
         
         lblTitle.setText("Title: " + documentSelected.getTitle());
         lblType.setText("Type: " + documentSelected.getType());
@@ -151,7 +149,7 @@ public class HomeFrameController implements Initializable {
             Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
         }
          */
-        documentList = dbConnection.getAllDocuments();
+        List documentList = dbConnection.getAllDocuments();
 
         obsDocumentList = FXCollections.observableArrayList(documentList);
         lvDocument.setItems(obsDocumentList);
