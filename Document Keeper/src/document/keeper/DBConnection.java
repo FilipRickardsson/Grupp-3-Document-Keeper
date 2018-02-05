@@ -80,7 +80,7 @@ public class DBConnection {
         return fetchedDocuments;
     }
 
-    private boolean insertDocument(Document newDocument) {
+    public boolean insertDocument(Document newDocument) {
         try {
             stmt = conn.createStatement();
             stmt.executeUpdate("INSERT INTO APP.DOCUMENT (title, type, file_size, date_created, date_imported) VALUES ('"
@@ -100,6 +100,21 @@ public class DBConnection {
                         + insertedDocumentId + ","
                         + "'Untagged')");
             }
+
+            stmt.close();
+            return true;
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean tagDocument(int documentId, String tagname) {
+        try {
+            stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_TAGS "
+                    + "(documentid, tagname) VALUES ("
+                    + documentId + ",'"
+                    + tagname + "')");
 
             stmt.close();
             return true;
