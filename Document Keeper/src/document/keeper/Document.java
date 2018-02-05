@@ -1,7 +1,5 @@
 package document.keeper;
 
-import java.util.Date;
-
 /**
  *
  * @author Alexiz
@@ -12,13 +10,13 @@ public class Document {
     String title;
     String type;
     String file_size;
-    Date date_imported;
-    Date date_created;
+    String date_imported;
+    String date_created;
 
     public Document() {
     }
 
-    public Document(int id, String title, String type, String file_size, Date date_imported, Date date_created) {
+    public Document(int id, String title, String type, String file_size, String date_imported, String date_created) {
         this.id = id;
         this.title = title;
         this.type = type;
@@ -64,19 +62,19 @@ public class Document {
         this.file_size = file_size;
     }
 
-    public Date getDate_imported() {
+    public String getDate_imported() {
         return date_imported;
     }
 
-    public void setDate_imported(Date date_imported) {
+    public void setDate_imported(String date_imported) {
         this.date_imported = date_imported;
     }
 
-    public Date getDate_created() {
+    public String getDate_created() {
         return date_created;
     }
 
-    public void setDate_created(Date date_created) {
+    public void setDate_created(String date_created) {
         this.date_created = date_created;
     }
 
