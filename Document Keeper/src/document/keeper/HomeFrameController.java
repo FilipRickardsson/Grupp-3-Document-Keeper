@@ -1,5 +1,6 @@
 package document.keeper;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -86,7 +87,29 @@ public class HomeFrameController implements Initializable {
             }
         }
     }
-
+    
+    
+    
+    // Metod körs vid varje markering, ska bara köra på dubbelklick             TODO
+    @FXML
+    private void lvDocumentDoubleClicked() throws CryptoException, IOException {
+        Document documentSelected = (Document) lvDocument.getSelectionModel().getSelectedItem();
+        
+        String title = documentSelected.getTitle();
+        String type = documentSelected.getType();
+        
+        String encryptedFilePath = "./DKDocuments/" + title + ".encoded";
+        String decodedFilePath = "./DKDocuments/Temp/" + title + "." + type;
+        
+        // Decode file and put in Temp dir
+        File encryptedFile = new File(encryptedFilePath);
+        File decodedFile = new File(decodedFilePath);
+        encryption.decrypt("abcdefghijklmnop", encryptedFile, decodedFile);
+        
+        // Open decoded file with default program
+        Desktop.getDesktop().open(decodedFile);
+    }
+    
     public Document extractMetaData(File file) throws IOException {
 
         DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
@@ -124,7 +147,7 @@ public class HomeFrameController implements Initializable {
     }
 
     @FXML
-    private void lvDocumentSelected() {
+    private void lvDocumentSelected() throws CryptoException, IOException {
         //Dessa är osynliga tills man väljer ett dokument i vyn
         lblTitle.setVisible(true);
         lblType.setVisible(true);
@@ -133,13 +156,15 @@ public class HomeFrameController implements Initializable {
         lblDateCreated.setVisible(true);
 
         Document documentSelected = (Document) lvDocument.getSelectionModel().getSelectedItem();
-
+        lvDocumentDoubleClicked();
         lblTitle.setText("Title: " + documentSelected.getTitle());
         lblType.setText("Type: " + documentSelected.getType());
         lblFileSize.setText("File size: " + documentSelected.getFile_size());
         lblDateImported.setText("Date imported: " + documentSelected.getDate_imported());
         lblDateCreated.setText("Date created: " + documentSelected.getDate_created());
     }
+    
+    
 
     @FXML
     private void search() {
