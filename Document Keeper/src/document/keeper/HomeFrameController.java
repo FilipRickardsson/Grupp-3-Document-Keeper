@@ -25,8 +25,11 @@ import javafx.stage.Stage;
 import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import javafx.scene.control.TextField;
@@ -61,7 +64,7 @@ public class HomeFrameController implements Initializable {
     Encryption encryption = new Encryption();
 
     @FXML
-    void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException {
+    void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
         //Opens file chooser
@@ -72,7 +75,7 @@ public class HomeFrameController implements Initializable {
         List<File> list = fileChooser.showOpenMultipleDialog(stage);
 
         if (list != null) {
-
+            List<Document> documentList = new ArrayList();
             for (File file : list) {
                 // creates filepath 
                 String filePath = "./DKDocuments/" + file.getName();
@@ -84,7 +87,10 @@ public class HomeFrameController implements Initializable {
                 encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
                 // Creates document with extracted metadata
                 Document documentToDB = extractMetaData(file);
-                // 
+                //Add document to list
+                documentList.add(documentToDB);
+                // Send list with documents to DB
+                dbConnection.createDocuments((ResultSet) documentList);
 
             }
         }
@@ -124,22 +130,6 @@ public class HomeFrameController implements Initializable {
     @FXML
     void handleEditButton(ActionEvent event) {
 
-    }
-
-    private void copyFile(File file) {
-        //Creates destination for copied file based on it's default name
-        String destFileName = "./DKDocuments/" + file.getName();
-
-        try {
-            File dest = new File(destFileName);
-
-            Files.copy(file.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ex) {
-            Logger.getLogger(
-                    HomeFrameController.class.getName()).log(
-                            Level.SEVERE, null, ex
-                    );
-        }
     }
 
     @FXML
