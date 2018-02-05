@@ -25,10 +25,12 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 
 /**
@@ -158,12 +160,13 @@ public class HomeFrameController implements Initializable {
         obsDocumentList.addAll(
                 dbConnection.getAllDocuments());
     }
-    
+
     private void switchToEditFrameScene(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("EditFrame.fxml"));
             Parent root = (Parent) loader.load();
             EditFrameController controller = (EditFrameController) loader.getController();
+            controller.setDocumentsToEdit(getSelectedDocuments());
             Scene scene = new Scene(root);
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(scene);
@@ -171,7 +174,16 @@ public class HomeFrameController implements Initializable {
             e.printStackTrace();
         }
     }
-    
+
+    private List getSelectedDocuments() {
+        List<Document> selectedDocuments = new ArrayList();
+        ObservableList<Document> obsSelectedItems = lvDocument.getSelectionModel().getSelectedItems();
+        for (Document d : obsSelectedItems) {
+            selectedDocuments.add(d);
+        }
+        return selectedDocuments;
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         System.out.println("debagger HomeFrameController");
@@ -191,6 +203,8 @@ public class HomeFrameController implements Initializable {
 
         obsDocumentList = FXCollections.observableArrayList(documentList);
         lvDocument.setItems(obsDocumentList);
+
+        lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
-    
+
 }

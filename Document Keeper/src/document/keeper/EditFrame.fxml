@@ -22,7 +22,7 @@
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                      </padding>
                      <children>
-                        <Label text="Edit Documents">
+                        <Label fx:id="lblHeader" text="Edit Documents">
                            <font>
                               <Font size="30.0" />
                            </font>
