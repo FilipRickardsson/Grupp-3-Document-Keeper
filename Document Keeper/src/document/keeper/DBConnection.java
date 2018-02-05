@@ -18,7 +18,6 @@ public class DBConnection {
 
     public DBConnection() {
         createConnection();
-        getAllDocuments();
     }
 
     private void createConnection() {
@@ -59,20 +58,12 @@ public class DBConnection {
                     + "LOWER(tagname) LIKE LOWER('%" + searchStr + "%')\n");
 
             searchResult = createDocuments(results);
-            printDocuments(searchResult);
             results.close();
             stmt.close();
         } catch (SQLException sqlExcept) {
             sqlExcept.printStackTrace();
         }
         return searchResult;
-    }
-
-    private void printDocuments(List<Document> documentsToPrint) throws SQLException {
-        System.out.println("--------------------");
-        for(Document d : documentsToPrint) {
-            System.out.println(d.toString());
-        }
     }
 
     private List createDocuments(ResultSet results) throws SQLException {
@@ -87,6 +78,35 @@ public class DBConnection {
                     results.getString(6)));
         }
         return fetchedDocuments;
+    }
+
+    private boolean insertDocument(Document newDocument) {
+        try {
+            stmt = conn.createStatement();
+            stmt.executeUpdate("INSERT INTO APP.DOCUMENT (title, type, file_size, date_created, date_imported) VALUES ('"
+                    + newDocument.getTitle() + "','"
+                    + newDocument.getType() + "','"
+                    + newDocument.getFile_size() + "','"
+                    + newDocument.getDate_created() + "','"
+                    + newDocument.getDate_imported() + "')", Statement.RETURN_GENERATED_KEYS);
+
+            ResultSet generatedKeys = stmt.getGeneratedKeys();
+
+            if (generatedKeys != null && generatedKeys.next()) {
+                int insertedDocumentId = generatedKeys.getInt(1);
+
+                stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_TAGS "
+                        + "(documentid, tagname) VALUES ("
+                        + insertedDocumentId + ","
+                        + "'Untagged')");
+            }
+
+            stmt.close();
+            return true;
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
+            return false;
+        }
     }
 
 }
