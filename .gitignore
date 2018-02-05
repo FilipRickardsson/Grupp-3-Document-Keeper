@@ -27,7 +27,3 @@ hs_err_pid*
 /Document\ Keeper/dist/
 /Document\ Keeper/nbproject/private/
 /Document\ Keeper/DB/
-# exclude everything
-/Document\ Keeper/DKDocuments/*
-#exception to the rule
-!/Document\ Keeper/DKDocuments/gitkeep
