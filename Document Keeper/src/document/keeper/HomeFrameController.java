@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -23,6 +24,9 @@ import javafx.stage.Stage;
 import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import javafx.scene.control.TextField;
 
 
@@ -67,16 +71,45 @@ public class HomeFrameController implements Initializable {
 
         if (list != null) {
             for (File file : list) {
+                // creates filepath 
                 String filePath = "./DKDocuments/" + file.getName();
                 String encryptedFilePath = filePath.substring(0, filePath.lastIndexOf('.'));
                 String encryptedFilePathEnding = encryptedFilePath + ".encoded";
-
+                // Creates empty file
                 File encryptedFile = new File(encryptedFilePathEnding);
+                // Encrypts and copies imported file to newly created file 
                 encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
+                extractMetaData(file);
+                
+                
             }
         }
     }
-
+    
+    public Document extractMetaData(File file) throws IOException{
+        DateFormat df = new SimpleDateFormat("dd:MM:yyyy HH:mm:ss");
+        String titleWithExt = file.getName();
+        String currentTime = df.format(Calendar.getInstance().getTime());
+        BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+        String dateCreated = df.format(attr.creationTime());
+        String fileSize = String.valueOf(file.length());
+        
+        Document document = new Document(
+                // Title
+                file.getName().substring(0, file.getName().lastIndexOf('.')),
+                // Type
+                file.getName().substring(file.getName().lastIndexOf('.')+1),
+                // Size
+                fileSize,
+                // Date imported
+                currentTime,
+                // Date created
+                dateCreated
+        );
+        System.out.println("document toString " + document.toString());
+        return document;
+    }
+    
     @FXML
     void handleExportButton(ActionEvent event) {
 
