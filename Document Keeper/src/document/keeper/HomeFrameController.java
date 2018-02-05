@@ -75,7 +75,6 @@ public class HomeFrameController implements Initializable {
         List<File> list = fileChooser.showOpenMultipleDialog(stage);
 
         if (list != null) {
-            List<Document> documentList = new ArrayList();
             for (File file : list) {
                 // creates filepath 
                 String filePath = "./DKDocuments/" + file.getName();
@@ -87,10 +86,8 @@ public class HomeFrameController implements Initializable {
                 encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
                 // Creates document with extracted metadata
                 Document documentToDB = extractMetaData(file);
-                //Add document to list
-                documentList.add(documentToDB);
                 // Send list with documents to DB
-                dbConnection.createDocuments((ResultSet) documentList);
+                dbConnection.insertDocument(documentToDB);
 
             }
         }

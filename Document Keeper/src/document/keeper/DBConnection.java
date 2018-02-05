@@ -75,7 +75,7 @@ public class DBConnection {
         }
     }
 
-    public List createDocuments(ResultSet results) throws SQLException {
+    private List createDocuments(ResultSet results) throws SQLException {
         List fetchedDocuments = new ArrayList();
         while (results.next()) {
             fetchedDocuments.add(new Document(
