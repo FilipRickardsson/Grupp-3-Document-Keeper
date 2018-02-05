@@ -83,8 +83,8 @@ public class DBConnection {
                     results.getString(2),
                     results.getString(3),
                     results.getString(4),
-                    results.getDate(5),
-                    results.getDate(6)));
+                    results.getString(5),
+                    results.getString(6)));
         }
         return fetchedDocuments;
     }
