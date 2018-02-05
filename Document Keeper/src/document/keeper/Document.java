@@ -1,6 +1,8 @@
 package document.keeper;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -14,6 +16,9 @@ public class Document {
     String file_size;
     Date date_imported;
     Date date_created;
+    
+    List<Integer> linkedDocuments;
+    List<String> tags;
 
     public Document() {
     }
@@ -26,10 +31,21 @@ public class Document {
         this.date_imported = date_imported;
         this.date_created = date_created;
     }
+    
+    public Document(int id, String title, String type, String file_size, Date date_imported, Date date_created, List linkedDocuments, List<String> tags) {
+        this.id = id;
+        this.title = title;
+        this.type = type;
+        this.file_size = file_size;
+        this.date_imported = date_imported;
+        this.date_created = date_created;
+        this.linkedDocuments = new ArrayList<>(linkedDocuments);
+        this.tags = new ArrayList<>(tags);
+    }
 
     @Override
     public String toString() {
-        return title + "." + type;
+        return title + type;
     }
 
     public int getId() {
@@ -80,4 +96,25 @@ public class Document {
         this.date_created = date_created;
     }
 
+    public List<Integer> getLinkedDocuments()
+    {
+        return linkedDocuments;
+    }
+
+    public void setLinkedDocuments(List<Integer> linkedDocuments)
+    {
+        this.linkedDocuments = linkedDocuments;
+    }
+
+    public List<String> getTags()
+    {
+        return tags;
+    }
+
+    public void setTags(List<String> tags)
+    {
+        this.tags = tags;
+    }
+    
+    
 }

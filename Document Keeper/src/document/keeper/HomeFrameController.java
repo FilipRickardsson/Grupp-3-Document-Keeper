@@ -23,7 +23,14 @@ import javafx.stage.Stage;
 import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Pane;
 
 
 /**
@@ -34,6 +41,8 @@ import javafx.scene.control.TextField;
 public class HomeFrameController implements Initializable {
 
     DBConnection dbConnection;
+    
+    ArrayList<Document> fileList;
 
     @FXML
     private TextField tfSearch;
@@ -48,9 +57,12 @@ public class HomeFrameController implements Initializable {
     private Button importButton, exportButton, editButton;
 
     @FXML
-    private Label labelChosedFiles, labelMetadata;
+    private Label labelChosedFiles, labelMetadata, lblSelectedDocument;
     
-    @FXML private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated;
+    @FXML private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated, lblTags,
+            lblLinkedDocuments;
+    
+    @FXML private Pane paneMetadata;
     
     Encryption encryption = new Encryption();
 
@@ -104,27 +116,39 @@ public class HomeFrameController implements Initializable {
     }
     
     @FXML private void lvDocumentSelected() {
-        //Dessa är osynliga tills man väljer ett dokument i vyn
-        lblTitle.setVisible(true);
-        lblType.setVisible(true);
-        lblFileSize.setVisible(true);
-        lblDateImported.setVisible(true);
-        lblDateCreated.setVisible(true);
+        ObservableList<Document> documentSelected = (ObservableList<Document>)lvDocument.getSelectionModel().getSelectedItems();
+        lblSelectedDocument.setText("");
         
-        Document documentSelected = (Document)lvDocument.getSelectionModel().getSelectedItem();
+        documentSelected.stream().forEach((d) ->
+        {
+            if (lblSelectedDocument.getText().equals("")) {
+                lblSelectedDocument.setText(d.getTitle());
+                lblTags.setText(d.getTags() + "\n");
+                
+                //Hämta alla dokument med en for loop
+                String title = fileList.get(d.getLinkedDocuments().get(0)).getTitle();
+                lblLinkedDocuments.setText(title + "\n");
+                paneMetadata.setVisible(true);
+            } else {
+                //Visa bara gemensamma länkade dokument och taggar
+                lblSelectedDocument.setText(lblSelectedDocument.getText() + ", " + d.getTitle());
+                lblTags.setText(lblTags.getText() + d.getTags() + "\n");
+                paneMetadata.setVisible(false);
+            }
+        });
         
-        lblTitle.setText("Title: " + documentSelected.getTitle());
-        lblType.setText("Type: " + documentSelected.getType());
-        lblFileSize.setText("File size: " + documentSelected.getFile_size());
-        lblDateImported.setText("Date imported: " + documentSelected.getDate_imported());
-        lblDateCreated.setText("Date created: " + documentSelected.getDate_created());
+        lblTitle.setText("Title: " + documentSelected.get(0).getTitle());
+        lblType.setText("Type: " + documentSelected.get(0).getType());
+        lblFileSize.setText("File size: " + documentSelected.get(0).getFile_size());
+        lblDateImported.setText("Date imported: " + documentSelected.get(0).getDate_imported());
+        lblDateCreated.setText("Date created: " + documentSelected.get(0).getDate_created());
     }
     
     @FXML
     private void search() {
         obsDocumentList.clear();
         obsDocumentList.addAll(
-                dbConnection.searchForDocumentByTitleOrTag(tfSearch.getText()));
+        dbConnection.searchForDocumentByTitleOrTag(tfSearch.getText()));
     }
 
     @FXML
@@ -132,14 +156,14 @@ public class HomeFrameController implements Initializable {
         tfSearch.clear();
         obsDocumentList.clear();
         obsDocumentList.addAll(
-                dbConnection.getAllDocuments());
+        dbConnection.getAllDocuments());
     }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         dbConnection = new DBConnection();
-
-        /*
+        lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = "2018-02-01";
         Date dateObject = new Date();
@@ -148,11 +172,25 @@ public class HomeFrameController implements Initializable {
         } catch (ParseException ex) {
             Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
         }
-         */
+        
+        List<Integer> aList = new ArrayList<>();
+        aList.add(1);
+        aList.add(2);
+        List<String> tagList = new ArrayList<>();
+        tagList.add("untagged");
+        
+        fileList = new ArrayList();
+        fileList.add(new Document(1, "Cooper", ".txt", "54kb", dateObject, dateObject, aList, tagList));
+        fileList.add(new Document(2, "Rose", ".doc", "100kb", dateObject, dateObject, aList, tagList));
+        fileList.add(new Document(3, "Magnus", ".jpg", "12kb", dateObject, dateObject, aList, tagList));
+        
+        System.out.println(fileList.get(1).toString());
+        
         List documentList = dbConnection.getAllDocuments();
+        
+        System.out.println(documentList.toString());
 
-        obsDocumentList = FXCollections.observableArrayList(documentList);
+        obsDocumentList = FXCollections.observableArrayList(fileList);
         lvDocument.setItems(obsDocumentList);
     }
-
 }
