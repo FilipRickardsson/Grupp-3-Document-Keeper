@@ -4,11 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,8 +22,11 @@ import javafx.stage.Stage;
 import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import javafx.scene.control.TextField;
-
 
 /**
  * FXML Controller class
@@ -43,19 +45,20 @@ public class HomeFrameController implements Initializable {
 
     @FXML
     private ListView lvDocument;
-    
+
     @FXML
     private Button importButton, exportButton, editButton;
 
     @FXML
     private Label labelChosedFiles, labelMetadata;
-    
-    @FXML private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated;
-    
+
+    @FXML
+    private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated;
+
     Encryption encryption = new Encryption();
 
     @FXML
-    void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException {
+    void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
         //Opens file chooser
@@ -67,14 +70,47 @@ public class HomeFrameController implements Initializable {
 
         if (list != null) {
             for (File file : list) {
+                // creates filepath 
                 String filePath = "./DKDocuments/" + file.getName();
                 String encryptedFilePath = filePath.substring(0, filePath.lastIndexOf('.'));
                 String encryptedFilePathEnding = encryptedFilePath + ".encoded";
-
+                // Creates empty file
                 File encryptedFile = new File(encryptedFilePathEnding);
+                // Encrypts and copies imported file to newly created file 
                 encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
+                // Creates document with extracted metadata
+                Document documentToDB = extractMetaData(file);
+                // Send list with documents to DB
+                dbConnection.insertDocument(documentToDB);
+
             }
         }
+    }
+
+    public Document extractMetaData(File file) throws IOException {
+
+        DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        String fileSize = String.valueOf(file.length());
+        String currentTime = df.format(Calendar.getInstance().getTime());
+
+        // Extract date created from file
+        BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+        FileTime date = attr.creationTime();
+        String dateCreated = df.format(date.toMillis());
+
+        Document document = new Document(
+                // Title
+                file.getName().substring(0, file.getName().lastIndexOf('.')),
+                // Type
+                file.getName().substring(file.getName().lastIndexOf('.') + 1),
+                // Size
+                fileSize,
+                // Date imported
+                currentTime,
+                // Date created
+                dateCreated
+        );
+        return document;
     }
 
     @FXML
@@ -86,40 +122,25 @@ public class HomeFrameController implements Initializable {
     void handleEditButton(ActionEvent event) {
 
     }
-    
-    private void copyFile(File file) {
-        //Creates destination for copied file based on it's default name
-        String destFileName = "./DKDocuments/" + file.getName();
-        
-        try {
-            File dest = new File(destFileName);
 
-            Files.copy(file.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ex) {
-            Logger.getLogger(
-                HomeFrameController.class.getName()).log(
-                    Level.SEVERE, null, ex
-                );
-        }
-    }
-    
-    @FXML private void lvDocumentSelected() {
+    @FXML
+    private void lvDocumentSelected() {
         //Dessa är osynliga tills man väljer ett dokument i vyn
         lblTitle.setVisible(true);
         lblType.setVisible(true);
         lblFileSize.setVisible(true);
         lblDateImported.setVisible(true);
         lblDateCreated.setVisible(true);
-        
-        Document documentSelected = (Document)lvDocument.getSelectionModel().getSelectedItem();
-        
+
+        Document documentSelected = (Document) lvDocument.getSelectionModel().getSelectedItem();
+
         lblTitle.setText("Title: " + documentSelected.getTitle());
         lblType.setText("Type: " + documentSelected.getType());
         lblFileSize.setText("File size: " + documentSelected.getFile_size());
         lblDateImported.setText("Date imported: " + documentSelected.getDate_imported());
         lblDateCreated.setText("Date created: " + documentSelected.getDate_created());
     }
-    
+
     @FXML
     private void search() {
         obsDocumentList.clear();
@@ -134,7 +155,7 @@ public class HomeFrameController implements Initializable {
         obsDocumentList.addAll(
                 dbConnection.getAllDocuments());
     }
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         dbConnection = new DBConnection();
