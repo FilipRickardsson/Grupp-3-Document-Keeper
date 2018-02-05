@@ -26,6 +26,14 @@ public class Document {
         this.date_imported = date_imported;
         this.date_created = date_created;
     }
+    
+    public Document(String title, String type, String file_size, Date date_imported, Date date_created) {
+        this.title = title;
+        this.type = type;
+        this.file_size = file_size;
+        this.date_imported = date_imported;
+        this.date_created = date_created;
+    }
 
     @Override
     public String toString() {
