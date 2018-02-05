@@ -80,7 +80,7 @@ public class DBConnection {
         return fetchedDocuments;
     }
 
-    private boolean insertDocument(Document newDocument) {
+    public boolean insertDocument(Document newDocument) {
         try {
             stmt = conn.createStatement();
             stmt.executeUpdate("INSERT INTO APP.DOCUMENT (title, type, file_size, date_created, date_imported) VALUES ('"
