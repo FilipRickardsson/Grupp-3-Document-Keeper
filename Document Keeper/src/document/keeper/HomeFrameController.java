@@ -67,10 +67,10 @@ public class HomeFrameController implements Initializable {
     private Button importButton, exportButton, editButton;
 
     @FXML
-    private Label labelChosedFiles, labelMetadata, lblSelectedDocument;
+    private Label labelChosedFiles, labelMetadata, lblSelectedDocument, lblTitle, 
+            lblType, lblFileSize, lblDateImported, lblDateCreated, lblTags, lblLinkedDocuments,
+            lblLinkedDocumentsfeedbackMessage, labelFeedbackMessage;
     
-    @FXML private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated, lblTags,
-            lblLinkedDocuments;
     
     @FXML private Pane paneMetadata;
     
@@ -80,6 +80,8 @@ public class HomeFrameController implements Initializable {
     void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
+        int documentListSize = documentList.size();
+        
         //Opens file chooser
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Import files");
@@ -93,19 +95,34 @@ public class HomeFrameController implements Initializable {
                 String filePath = "./DKDocuments/" + file.getName();
                 String encryptedFilePath = filePath.substring(0, filePath.lastIndexOf('.'));
                 String encryptedFilePathEnding = encryptedFilePath + ".encoded";
+                
                 // Creates empty file
                 File encryptedFile = new File(encryptedFilePathEnding);
+                
                 // Encrypts and copies imported file to newly created file 
                 encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
+                
                 // Creates document with extracted metadata
                 Document documentToDB = extractMetaData(file);
+                
                 // Send list with documents to DB
                 dbConnection.insertDocument(documentToDB);
-               
-                System.out.println("documentLIst " + documentList);
 
             }
             updateListView();
+            
+            //Compare list before with list after 
+            int importedDocuments = documentList.size() - documentListSize;
+            
+            //Message about imported files       
+            if (importedDocuments > 1){
+                labelFeedbackMessage.setText("You succesfully imported " + importedDocuments + " documents.");
+            }
+            else
+            {
+                labelFeedbackMessage.setText("You succesfully imported a document.");
+            }
+            
         }
     }
 

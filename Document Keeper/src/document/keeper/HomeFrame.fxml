@@ -17,7 +17,7 @@
 
 <AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="document.keeper.HomeFrameController">
    <children>
-      <SplitPane dividerPositions="0.1" orientation="VERTICAL" prefHeight="800.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.11152882205513784" orientation="VERTICAL" prefHeight="800.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
@@ -53,7 +53,8 @@
                                           <Button mnemonicParsing="false" onAction="#handleClearSearchButton" text="Clear Search" />
                                        </children>
                                     </HBox>
-                                    <ListView fx:id="lvDocument" onMouseClicked="#lvDocumentSelected" prefHeight="695.0" prefWidth="412.0" />
+                                    <Label fx:id="feedbackMessage" />
+                                    <ListView fx:id="lvDocument" onMouseClicked="#lvDocumentSelected" prefHeight="599.0" prefWidth="329.0" />
                                  </children>
                               </VBox>
                            </children>
