@@ -109,4 +109,19 @@ public class DBConnection {
         }
     }
 
+    public boolean tagDocument(int documentId, String tagname) {
+        try {
+            stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_TAGS "
+                    + "(documentid, tagname) VALUES ("
+                    + documentId + ",'"
+                    + tagname + "')");
+
+            stmt.close();
+            return true;
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
+            return false;
+        }
+    }
+
 }
