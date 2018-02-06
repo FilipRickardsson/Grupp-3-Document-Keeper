@@ -69,15 +69,41 @@ public class DBConnection {
     private List createDocuments(ResultSet results) throws SQLException {
         List fetchedDocuments = new ArrayList();
         while (results.next()) {
-            fetchedDocuments.add(new Document(
+            Document newDocument = new Document(
                     results.getInt(1),
                     results.getString(2),
                     results.getString(3),
                     results.getString(4),
                     results.getString(5),
-                    results.getString(6)));
+                    results.getString(6));
+            newDocument.setTags(getDocumentTags(newDocument.getId()));
+
+            fetchedDocuments.add(newDocument);
         }
         return fetchedDocuments;
+    }
+
+    private List<String> getDocumentTags(int documentId) {
+        List<String> tags = new ArrayList();
+        try {
+            stmt = conn.createStatement();
+            ResultSet results = stmt.executeQuery(""
+                    + "SELECT DISTINCT tagname FROM APP.DOCUMENT\n"
+                    + "JOIN APP.DOCUMENT_HAS_TAGS\n"
+                    + "ON APP.DOCUMENT.ID = APP.DOCUMENT_HAS_TAGS.DOCUMENTID\n"
+                    + "WHERE \n"
+                    + "id = " + documentId);
+
+            while (results.next()) {
+                tags.add(results.getString(1));
+            }
+
+            results.close();
+            stmt.close();
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
+        }
+        return tags;
     }
 
     public boolean insertDocument(Document newDocument) {
