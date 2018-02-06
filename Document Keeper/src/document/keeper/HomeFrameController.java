@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
@@ -22,16 +23,24 @@ import javafx.stage.Stage;
 import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Pane;
 
 /**
  * FXML Controller class
@@ -41,6 +50,9 @@ import javafx.scene.control.TextField;
 public class HomeFrameController implements Initializable {
 
     DBConnection dbConnection;
+    
+    ArrayList<Document> fileList;
+    List<Document> documentList;
 
     @FXML
     private TextField tfSearch;
@@ -55,11 +67,13 @@ public class HomeFrameController implements Initializable {
     private Button importButton, exportButton, editButton;
 
     @FXML
-    private Label labelChosedFiles, labelMetadata;
-
-    @FXML
-    private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated;
-
+    private Label labelChosedFiles, labelMetadata, lblSelectedDocument;
+    
+    @FXML private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated, lblTags,
+            lblLinkedDocuments;
+    
+    @FXML private Pane paneMetadata;
+    
     Encryption encryption = new Encryption();
 
     @FXML
@@ -127,30 +141,61 @@ public class HomeFrameController implements Initializable {
     void handleEditButton(ActionEvent event) {
         switchToEditFrameScene(event);
     }
+    
+    private void copyFile(File file) {
+        //Creates destination for copied file based on it's default name
+        String destFileName = "./DKDocuments/" + file.getName();
+        
+        try {
+            File dest = new File(destFileName);
 
-    @FXML
-    private void lvDocumentSelected() {
-        //Dessa är osynliga tills man väljer ett dokument i vyn
-        lblTitle.setVisible(true);
-        lblType.setVisible(true);
-        lblFileSize.setVisible(true);
-        lblDateImported.setVisible(true);
-        lblDateCreated.setVisible(true);
-
-        Document documentSelected = (Document) lvDocument.getSelectionModel().getSelectedItem();
-
-        lblTitle.setText("Title: " + documentSelected.getTitle());
-        lblType.setText("Type: " + documentSelected.getType());
-        lblFileSize.setText("File size: " + documentSelected.getFile_size());
-        lblDateImported.setText("Date imported: " + documentSelected.getDate_imported());
-        lblDateCreated.setText("Date created: " + documentSelected.getDate_created());
+            Files.copy(file.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            Logger.getLogger(
+                HomeFrameController.class.getName()).log(
+                    Level.SEVERE, null, ex
+                );
+        }
+    }
+    
+    @FXML private void lvDocumentSelected() {
+        ObservableList<Document> documentSelected = (ObservableList<Document>)lvDocument.getSelectionModel().getSelectedItems();
+        lblSelectedDocument.setText("");
+        
+        System.out.println(documentSelected.get(0).getTitle());
+        
+        documentSelected.stream().forEach((d) ->
+        {
+            if (lblSelectedDocument.getText().equals("")) {
+                lblSelectedDocument.setText(d.getTitle());
+                lblTags.setText(d.getTags() + "\n");
+                
+                //Hämta alla dokument med en for loop
+                String title = d.getTitle();
+                lblLinkedDocuments.setText(title + "\n");
+                paneMetadata.setVisible(true);
+            } else {
+                //Visa bara gemensamma länkade dokument och taggar
+                lblSelectedDocument.setText(lblSelectedDocument.getText() + ", " + d.getTitle());
+                lblTags.setText(lblTags.getText() + d.getTags() + "\n");
+                paneMetadata.setVisible(false);
+            }
+        });
+        
+        System.out.println(documentSelected.get(0).getTitle());
+        
+        lblTitle.setText("Title: " + documentSelected.get(0).getTitle());
+        lblType.setText("Type: " + documentSelected.get(0).getType());
+        lblFileSize.setText("File size: " + documentSelected.get(0).getFile_size());
+        lblDateImported.setText("Date imported: " + documentSelected.get(0).getDate_imported());
+        lblDateCreated.setText("Date created: " + documentSelected.get(0).getDate_created());
     }
 
     @FXML
     private void search() {
         obsDocumentList.clear();
         obsDocumentList.addAll(
-                dbConnection.searchForDocumentByTitleOrTag(tfSearch.getText()));
+        dbConnection.searchForDocumentByTitleOrTag(tfSearch.getText()));
     }
 
     @FXML
@@ -158,7 +203,7 @@ public class HomeFrameController implements Initializable {
         tfSearch.clear();
         obsDocumentList.clear();
         obsDocumentList.addAll(
-                dbConnection.getAllDocuments());
+        dbConnection.getAllDocuments());
     }
 
     private void switchToEditFrameScene(ActionEvent event) {
@@ -188,8 +233,8 @@ public class HomeFrameController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         System.out.println("debagger HomeFrameController");
         dbConnection = new DBConnection();
-
-        /*
+        lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = "2018-02-01";
         Date dateObject = new Date();
@@ -198,13 +243,27 @@ public class HomeFrameController implements Initializable {
         } catch (ParseException ex) {
             Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
         }
-         */
-        List documentList = dbConnection.getAllDocuments();
+        
+        List<Integer> aList = new ArrayList<>();
+        aList.add(1);
+        aList.add(2);
+        List<String> tagList = new ArrayList<>();
+        tagList.add("untagged");
+        
+        fileList = new ArrayList();
+        fileList.add(new Document(1, "Cooper", ".txt", "54kb", "test", "test", aList, tagList));
+        fileList.add(new Document(2, "Rose", ".doc", "100kb", "test", "test", aList, tagList));
+        fileList.add(new Document(3, "Magnus", ".jpg", "12kb", "test", "test", aList, tagList));
+        
+        System.out.println(fileList.get(1).toString());
+        
+        documentList = dbConnection.getAllDocuments();
+        
+        System.out.println(documentList.toString());
 
         obsDocumentList = FXCollections.observableArrayList(documentList);
         lvDocument.setItems(obsDocumentList);
 
         lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
-
 }
