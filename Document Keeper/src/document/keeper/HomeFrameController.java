@@ -140,25 +140,6 @@ public class HomeFrameController implements Initializable
         return document;
     }
     
-    @FXML 
-    private void lvDocumentDoubleClicked() throws CryptoException, IOException { 
-        Document documentSelected = (Document) lvDocument.getSelectionModel().getSelectedItem(); 
-         
-        String title = documentSelected.getTitle(); 
-        String type = documentSelected.getType(); 
-         
-        String encryptedFilePath = "./DKDocuments/" + title + ".encoded"; 
-        String decodedFilePath = "./DKDocuments/Temp/" + title + "." + type; 
-         
-        // Decode file and put in Temp dir 
-        File encryptedFile = new File(encryptedFilePath); 
-        File decodedFile = new File(decodedFilePath); 
-        encryption.decrypt("abcdefghijklmnop", encryptedFile, decodedFile); 
-         
-        // Open decoded file with default program 
-        Desktop.getDesktop().open(decodedFile); 
-    } 
-    
     @FXML
     void handleOpenButton(ActionEvent event) throws CryptoException, IOException
     {
