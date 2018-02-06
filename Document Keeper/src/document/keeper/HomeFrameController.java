@@ -101,8 +101,11 @@ public class HomeFrameController implements Initializable {
                 Document documentToDB = extractMetaData(file);
                 // Send list with documents to DB
                 dbConnection.insertDocument(documentToDB);
+               
+                System.out.println("documentLIst " + documentList);
 
             }
+            updateListView();
         }
     }
 
@@ -142,21 +145,6 @@ public class HomeFrameController implements Initializable {
         switchToEditFrameScene(event);
     }
     
-    private void copyFile(File file) {
-        //Creates destination for copied file based on it's default name
-        String destFileName = "./DKDocuments/" + file.getName();
-        
-        try {
-            File dest = new File(destFileName);
-
-            Files.copy(file.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ex) {
-            Logger.getLogger(
-                HomeFrameController.class.getName()).log(
-                    Level.SEVERE, null, ex
-                );
-        }
-    }
     
     @FXML private void lvDocumentSelected() {
         ObservableList<Document> documentSelected = (ObservableList<Document>)lvDocument.getSelectionModel().getSelectedItems();
@@ -228,6 +216,17 @@ public class HomeFrameController implements Initializable {
         }
         return selectedDocuments;
     }
+    
+    public void updateListView(){
+        documentList = dbConnection.getAllDocuments();
+        
+        System.out.println(documentList.toString());
+
+        obsDocumentList = FXCollections.observableArrayList(documentList);
+        lvDocument.setItems(obsDocumentList);
+
+        lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -255,15 +254,9 @@ public class HomeFrameController implements Initializable {
         fileList.add(new Document(2, "Rose", ".doc", "100kb", "test", "test", aList, tagList));
         fileList.add(new Document(3, "Magnus", ".jpg", "12kb", "test", "test", aList, tagList));
         
-        System.out.println(fileList.get(1).toString());
+        System.out.println(fileList.get(1).toString()); 
         
-        documentList = dbConnection.getAllDocuments();
+        updateListView();
         
-        System.out.println(documentList.toString());
-
-        obsDocumentList = FXCollections.observableArrayList(documentList);
-        lvDocument.setItems(obsDocumentList);
-
-        lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 }
