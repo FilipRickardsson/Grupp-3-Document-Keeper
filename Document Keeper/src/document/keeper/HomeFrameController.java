@@ -127,6 +127,7 @@ public class HomeFrameController implements Initializable
             {
                 labelFeedbackMessage.setText("You succesfully imported a document.");
             }
+            
         }
     }
 
