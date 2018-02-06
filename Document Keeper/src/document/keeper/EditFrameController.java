@@ -16,8 +16,6 @@ public class EditFrameController implements Initializable {
 
     public void setDocumentsToEdit(List documentsToEdit) {
         this.documentsToEdit = documentsToEdit;
-        setHeaderText();
-        getDocumentsTags();
     }
 
     private void setHeaderText() {
@@ -31,10 +29,10 @@ public class EditFrameController implements Initializable {
         lblHeader.setText(headerTxt);
     }
 
-    private void getDocumentsTags() {
-        
+    public void initScene() {
+        setHeaderText();
     }
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
