@@ -53,7 +53,7 @@
                                           <Button mnemonicParsing="false" onAction="#handleClearSearchButton" text="Clear Search" />
                                        </children>
                                     </HBox>
-                                    <ListView fx:id="lvDocument" onMouseClicked="#lvDocumentSelected" prefHeight="695.0" prefWidth="412.0" />
+                                    <ListView fx:id="lvDocument" onKeyReleased="#lvDocumentSelected" onMouseClicked="#lvDocumentSelected" prefHeight="695.0" prefWidth="412.0" />
                                  </children>
                               </VBox>
                            </children>
@@ -90,12 +90,12 @@
                                     <Pane layoutX="365.0" layoutY="200.0" prefHeight="200.0" prefWidth="200.0">
                                        <children>
                                           <Label fx:id="lblTags" layoutX="14.0" layoutY="31.0" />
-                                          <Label layoutX="14.0" layoutY="14.0" text="Tags:" />
+                                          <Label fx:id="lblTagsGraphic" layoutX="14.0" layoutY="14.0" text="Tags:" />
                                        </children>
                                     </Pane>
                                     <Pane layoutX="365.0" layoutY="427.0" prefHeight="200.0" prefWidth="200.0">
                                        <children>
-                                          <Label layoutX="14.0" layoutY="14.0" text="Linked documents" />
+                                          <Label fx:id="lblLinkedDocumentsGraphic" layoutX="14.0" layoutY="14.0" text="Linked documents:" />
                                           <Label fx:id="lblLinkedDocuments" layoutX="14.0" layoutY="31.0" />
                                        </children>
                                     </Pane>

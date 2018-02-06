@@ -50,8 +50,8 @@ import javafx.scene.layout.Pane;
 public class HomeFrameController implements Initializable {
 
     DBConnection dbConnection;
+    Encryption encryption = new Encryption();
     
-    ArrayList<Document> fileList;
     List<Document> documentList;
 
     @FXML
@@ -70,11 +70,9 @@ public class HomeFrameController implements Initializable {
     private Label labelChosedFiles, labelMetadata, lblSelectedDocument;
     
     @FXML private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated, lblTags,
-            lblLinkedDocuments;
+            lblLinkedDocuments, lblLinkedDocumentsGraphic, lblTagsGraphic;
     
     @FXML private Pane paneMetadata;
-    
-    Encryption encryption = new Encryption();
 
     @FXML
     void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException {
@@ -159,36 +157,19 @@ public class HomeFrameController implements Initializable {
     }
     
     @FXML private void lvDocumentSelected() {
-        ObservableList<Document> documentSelected = (ObservableList<Document>)lvDocument.getSelectionModel().getSelectedItems();
+        ObservableList<Document> documentsSelected = (ObservableList<Document>)lvDocument.getSelectionModel().getSelectedItems();
         lblSelectedDocument.setText("");
+        lblLinkedDocuments.setText("");
+        lblTags.setText("");
+        paneMetadata.setVisible(false);
         
-        System.out.println(documentSelected.get(0).getTitle());
-        
-        documentSelected.stream().forEach((d) ->
-        {
-            if (lblSelectedDocument.getText().equals("")) {
-                lblSelectedDocument.setText(d.getTitle());
-                lblTags.setText(d.getTags() + "\n");
-                
-                //Hämta alla dokument med en for loop
-                String title = d.getTitle();
-                lblLinkedDocuments.setText(title + "\n");
-                paneMetadata.setVisible(true);
-            } else {
-                //Visa bara gemensamma länkade dokument och taggar
-                lblSelectedDocument.setText(lblSelectedDocument.getText() + ", " + d.getTitle());
-                lblTags.setText(lblTags.getText() + d.getTags() + "\n");
-                paneMetadata.setVisible(false);
-            }
-        });
-        
-        System.out.println(documentSelected.get(0).getTitle());
-        
-        lblTitle.setText("Title: " + documentSelected.get(0).getTitle());
-        lblType.setText("Type: " + documentSelected.get(0).getType());
-        lblFileSize.setText("File size: " + documentSelected.get(0).getFile_size());
-        lblDateImported.setText("Date imported: " + documentSelected.get(0).getDate_imported());
-        lblDateCreated.setText("Date created: " + documentSelected.get(0).getDate_created());
+        if (documentsSelected.size() == 1) {
+            System.out.println(documentsSelected.toString());
+            Document documentSelected = documentsSelected.get(0);
+            displayFileInfo(documentSelected);
+        } else if (documentsSelected.size() > 1) {
+            displayMultipleFiles(documentsSelected);
+        }
     }
 
     @FXML
@@ -228,34 +209,99 @@ public class HomeFrameController implements Initializable {
         }
         return selectedDocuments;
     }
+    
+    private void displayFileInfo(Document doc) {
+        lblSelectedDocument.setText(doc.toString());
+        lblTagsGraphic.setText("Tags:");
+        lblLinkedDocumentsGraphic.setText("Linked documents:");
+        lblTags.setText("");
+        lblLinkedDocuments.setText("");
+        paneMetadata.setVisible(true); //Visar metadata
+
+        lblTitle.setText("Title: " + doc.getTitle());
+        lblType.setText("Type: " + doc.getType());
+        lblFileSize.setText("File size: " + doc.getFile_size());
+        lblDateImported.setText("Date imported: " + doc.getDate_imported());
+        lblDateCreated.setText("Date created: " + doc.getDate_created());
+
+        if (doc.getTags().size() > 0) {
+            doc.getTags().stream().forEach((tag) -> {
+                if (lblTags.getText().equals("")) {
+                    lblTags.setText(tag);
+                } else {
+                    lblTags.setText(lblTags.getText() + "\n" + tag);
+                }
+            });
+
+            doc.getLinkedDocuments().stream().forEach((document) -> {
+                System.out.println(document);
+                documentList.stream().filter((d) -> (d.getId() == document)).forEach((d) -> {
+                    if (lblLinkedDocuments.getText().equals("")) {
+                        lblLinkedDocuments.setText(d.getTitle());
+                    } else {
+                        lblLinkedDocuments.setText(lblLinkedDocuments.getText() + "\n" + d.getTitle());
+                    }
+                });
+            });
+        } else {
+            lblTagsGraphic.setText("No tags to display");
+            lblLinkedDocumentsGraphic.setText("No linked documents");
+        }
+    }
+    
+    private void displayMultipleFiles(List<Document> documentList) {
+        List<String> commonTags = new ArrayList<>();
+        List<Integer> commonLinkedDocuments = new ArrayList<>();
+        
+        lblTagsGraphic.setText("Common tags:");
+        lblLinkedDocumentsGraphic.setText("Common linked documents:");
+        lblSelectedDocument.setText("");
+        
+        documentList.stream().forEach((d) -> {
+            if (lblSelectedDocument.getText().equals("")) {
+                commonTags.addAll(d.getTags());
+                commonLinkedDocuments.addAll(d.getLinkedDocuments());
+                
+                lblSelectedDocument.setText(d.toString());
+            } else {
+                //Visa bara gemensamma taggar
+                commonTags.retainAll(d.getTags());
+                commonLinkedDocuments.retainAll(d.getLinkedDocuments());
+                
+                lblSelectedDocument.setText(lblSelectedDocument.getText() + ", " + d.toString());
+            }
+        });
+        
+        commonTags.stream().forEach((t) -> {
+            if (lblTags.getText().equals("")) {
+                lblTags.setText(t);
+            } else {
+                lblTags.setText(lblTags.getText() + "\n" + t);
+            }
+        });
+        
+        commonLinkedDocuments.stream().forEach((d) -> {
+           if (lblLinkedDocuments.getText().equals("")) {
+                documentList.stream().forEach((doc) -> {
+                    if (d.equals(doc.getId())) {
+                        lblLinkedDocuments.setText(doc.getTitle());
+                    } 
+                });
+           } else {
+                documentList.stream().forEach((doc) -> {
+                    if (d.equals(doc.getId())) {
+                        lblLinkedDocuments.setText(lblLinkedDocuments.getText() + "\n" + doc.getTitle());
+                    }
+                });
+           }
+        });
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        System.out.println("debagger HomeFrameController");
+        System.out.println("debugger HomeFrameController");
         dbConnection = new DBConnection();
         lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        
-        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateString = "2018-02-01";
-        Date dateObject = new Date();
-        try {
-            dateObject = sdf.parse(dateString);
-        } catch (ParseException ex) {
-            Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        List<Integer> aList = new ArrayList<>();
-        aList.add(1);
-        aList.add(2);
-        List<String> tagList = new ArrayList<>();
-        tagList.add("untagged");
-        
-        fileList = new ArrayList();
-        fileList.add(new Document(1, "Cooper", ".txt", "54kb", "test", "test", aList, tagList));
-        fileList.add(new Document(2, "Rose", ".doc", "100kb", "test", "test", aList, tagList));
-        fileList.add(new Document(3, "Magnus", ".jpg", "12kb", "test", "test", aList, tagList));
-        
-        System.out.println(fileList.get(1).toString());
         
         documentList = dbConnection.getAllDocuments();
         
