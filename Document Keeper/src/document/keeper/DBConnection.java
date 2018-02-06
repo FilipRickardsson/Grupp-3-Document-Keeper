@@ -150,4 +150,55 @@ public class DBConnection {
         }
     }
 
+    public List<String> getTagsuggestions(String searchStr) {
+        List<String> tagSuggestions = new ArrayList();
+        try {
+            stmt = conn.createStatement();
+            stmt.setMaxRows(5);
+            ResultSet results = stmt.executeQuery(""
+                    + "SELECT NAME FROM APP.TAG \n"
+                    + "WHERE \n"
+                    + "LOWER(NAME)LIKE LOWER('" + searchStr + "%')"
+                    );
+
+            while (results.next()) {
+                tagSuggestions.add(results.getString(1));
+
+            }
+
+            results.close();
+            stmt.close();
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
+        }
+        return tagSuggestions;
+    }
+    public boolean addTag(String tagName){
+        
+        boolean tagAdded = false;
+        
+        try {
+            stmt = conn.createStatement();
+            
+            ResultSet results = stmt.executeQuery(""
+                    + "SELECT DISTINCT tagname FROM APP.DOCUMENT\n"
+                    + "JOIN APP.DOCUMENT_HAS_TAGS\n"
+                    + "ON APP.DOCUMENT.ID = APP.DOCUMENT_HAS_TAGS.DOCUMENTID\n"
+                    + "WHERE \n"
+                    + "LOWER(tagName) = '" + tagName.toLowerCase() + "'");
+            
+                    
+            if(!results.next()){
+                System.out.println("addTag");
+                tagAdded = true;
+            }
+            
+            results.close();
+            stmt.close();
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
+        }
+        return tagAdded;
+    }
 }
+
