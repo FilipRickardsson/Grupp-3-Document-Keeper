@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="564.0" prefWidth="714.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxClasses.StudentTestController">
+   <children>
+      <Label fx:id="lblTestSubject" layoutX="20.0" layoutY="31.0" text="Test: ämne" />
+      <Label fx:id="lblTeacherSubject" layoutX="20.0" layoutY="14.0" text="Teacher: ämne" />
+      <Label layoutX="141.0" layoutY="80.0" text="Time Left: " />
+      <Label fx:id="lblTimeLeft" layoutX="214.0" layoutY="80.0" text="0" />
+      <ListView fx:id="lvQuestionsNR" layoutX="20.0" layoutY="103.0" onMouseClicked="#lvQuestionsNRSelected" prefHeight="298.0" prefWidth="220.0" />
+      <Label fx:id="lblcurrentQuestionNR" layoutX="20.0" layoutY="80.0" text="Question: " />
+      <Label fx:id="quealternativ2" layoutX="300.0" layoutY="180.0" text="Alt2" />
+      <ImageView fx:id="ivImage" fitHeight="150.0" fitWidth="200.0" layoutX="257.0" layoutY="326.0" pickOnBounds="true" preserveRatio="true" />
+      <CheckBox id="chbxalternativ1" fx:id="chbxalternativ1" layoutX="261.0" layoutY="127.0" mnemonicParsing="false" onMouseReleased="#checkBoxHandler" />
+      <CheckBox id="chbxalternativ3" fx:id="chbxalternativ3" layoutX="261.0" layoutY="234.0" mnemonicParsing="false" onMouseReleased="#checkBoxHandler" />
+      <CheckBox id="chbxalternativ4" fx:id="chbxalternativ4" layoutX="261.0" layoutY="283.0" mnemonicParsing="false" onMouseReleased="#checkBoxHandler" />
+      <CheckBox id="chbxalternativ2" fx:id="chbxalternativ2" layoutX="261.0" layoutY="180.0" mnemonicParsing="false" onMouseReleased="#checkBoxHandler" />
+      <Label fx:id="quealternativ1" layoutX="300.0" layoutY="127.0" text="Alt1" />
+      <Label fx:id="quealternativ3" layoutX="300.0" layoutY="234.0" text="Alt3" />
+      <Label fx:id="quealternativ4" layoutX="300.0" layoutY="283.0" text="Alt4" />
+      <Label fx:id="lblQuestionText" layoutX="261.0" layoutY="103.0" text="Fråga" />
+      <Label fx:id="lblCorrectAnswers" layoutX="20.0" layoutY="447.0" />
+      <Button fx:id="btnSaveTest" layoutX="20.0" layoutY="409.0" mnemonicParsing="false" onAction="#btnSaveTestAction" text="Finish Test" />
+      <Button fx:id="btnDone" layoutX="181.0" layoutY="409.0" mnemonicParsing="false" onAction="#btnDoneClicked" text="Go Back" visible="false" />
+   </children>
+</AnchorPane>
