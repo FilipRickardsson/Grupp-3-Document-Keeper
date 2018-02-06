@@ -23,9 +23,8 @@ public class EditFrameController implements Initializable {
     private void setHeaderText() {
         String headerTxt = "Editing: ";
         for (int i = 0; i < documentsToEdit.size(); i++) {
-            if (i == documentsToEdit.size() - 1) {
-                headerTxt = headerTxt + documentsToEdit.get(i).getTitle();
-            } else {
+            headerTxt = headerTxt + documentsToEdit.get(i).getTitle();
+            if (i < documentsToEdit.size() - 1) {
                 headerTxt = headerTxt + documentsToEdit.get(i).getTitle() + ", ";
             }
         }
@@ -33,7 +32,7 @@ public class EditFrameController implements Initializable {
     }
 
     private void getDocumentsTags() {
-        Get tags from DB
+        
     }
     
     @Override
