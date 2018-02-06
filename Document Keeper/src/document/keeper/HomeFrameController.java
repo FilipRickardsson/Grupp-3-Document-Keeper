@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
@@ -24,10 +23,7 @@ import javafx.stage.Stage;
 import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -52,7 +48,13 @@ public class HomeFrameController implements Initializable
 {
 
     DBConnection dbConnection;
+<<<<<<< Updated upstream
 
+=======
+    
+    Encryption encryption = new Encryption();
+    
+>>>>>>> Stashed changes
     ArrayList<Document> fileList;
     List<Document> documentList;
 
@@ -76,7 +78,7 @@ public class HomeFrameController implements Initializable
     
     @FXML private Pane paneMetadata;
     
-    Encryption encryption = new Encryption();
+    
 
     @FXML
     void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException
@@ -121,7 +123,8 @@ public class HomeFrameController implements Initializable
             
             //Message about imported files       
             if (importedDocuments > 1){
-                labelFeedbackMessage.setText("You succesfully imported " + importedDocuments + " documents.");
+                labelFeedbackMessage.setText("You succesfully imported " + 
+                        importedDocuments + " documents.");
             }
             else
             {
@@ -198,8 +201,38 @@ public class HomeFrameController implements Initializable
     }
 
     @FXML
+<<<<<<< Updated upstream
     void handleExportButton(ActionEvent event)
     {
+=======
+    void handleExportButton(ActionEvent event) {
+        //Opens file chooser with save dialog
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();     
+        
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export files");
+
+        File file = fileChooser.showSaveDialog(stage);
+        
+        if (file != null){
+
+            System.out.println("documentsSelected " + getSelectedDocuments());
+                   
+            
+            //decrypt file   
+            //encryption.decrypt("abcdefghijklmnop", getSelectedDocuments().get(0), file);
+            
+            }
+       
+
+        
+        
+        //get path to directory with encrypted file
+        
+        
+        
+        //save to computer's directory
+>>>>>>> Stashed changes
 
     }
 
