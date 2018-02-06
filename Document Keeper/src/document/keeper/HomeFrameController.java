@@ -1,5 +1,6 @@
 package document.keeper;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -47,10 +48,11 @@ import javafx.scene.layout.Pane;
  *
  * @author Allan
  */
-public class HomeFrameController implements Initializable {
+public class HomeFrameController implements Initializable
+{
 
     DBConnection dbConnection;
-    
+
     ArrayList<Document> fileList;
     List<Document> documentList;
 
@@ -64,22 +66,25 @@ public class HomeFrameController implements Initializable {
     private ListView lvDocument;
 
     @FXML
-    private Button importButton, exportButton, editButton;
+    private Button importButton, exportButton, editButton, openButton;
 
     @FXML
-    private Label labelChosedFiles, labelMetadata, lblSelectedDocument;
+    private Label labelChosedFiles, labelMetadata, lblSelectedDocument, lblTitle, 
+            lblType, lblFileSize, lblDateImported, lblDateCreated, lblTags, lblLinkedDocuments,
+            lblLinkedDocumentsfeedbackMessage, labelFeedbackMessage;
     
-    @FXML private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated, lblTags,
-            lblLinkedDocuments;
     
     @FXML private Pane paneMetadata;
     
     Encryption encryption = new Encryption();
 
     @FXML
-    void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException {
+    void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException
+    {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
+        int documentListSize = documentList.size();
+        
         //Opens file chooser
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Import files");
@@ -87,26 +92,47 @@ public class HomeFrameController implements Initializable {
         //File selectedFile = fileChooser.showOpenDialog(stage);
         List<File> list = fileChooser.showOpenMultipleDialog(stage);
 
-        if (list != null) {
-            for (File file : list) {
+        if (list != null)
+        {
+            for (File file : list)
+            {
                 // creates filepath 
                 String filePath = "./DKDocuments/" + file.getName();
                 String encryptedFilePath = filePath.substring(0, filePath.lastIndexOf('.'));
                 String encryptedFilePathEnding = encryptedFilePath + ".encoded";
+                
                 // Creates empty file
                 File encryptedFile = new File(encryptedFilePathEnding);
+                
                 // Encrypts and copies imported file to newly created file 
                 encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
+                
                 // Creates document with extracted metadata
                 Document documentToDB = extractMetaData(file);
+                
                 // Send list with documents to DB
                 dbConnection.insertDocument(documentToDB);
 
             }
+            updateListView();
+            
+            //Compare list before with list after 
+            int importedDocuments = documentList.size() - documentListSize;
+            
+            //Message about imported files       
+            if (importedDocuments > 1){
+                labelFeedbackMessage.setText("You succesfully imported " + importedDocuments + " documents.");
+            }
+            else
+            {
+                labelFeedbackMessage.setText("You succesfully imported a document.");
+            }
+            
         }
     }
 
-    public Document extractMetaData(File file) throws IOException {
+    public Document extractMetaData(File file) throws IOException
+    {
 
         DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         String fileSize = String.valueOf(file.length());
@@ -131,59 +157,87 @@ public class HomeFrameController implements Initializable {
         );
         return document;
     }
-
+    
     @FXML
-    void handleExportButton(ActionEvent event) {
+    void handleOpenButton(ActionEvent event) throws CryptoException, IOException
+    {
+        ObservableList<Document> documentsSelected = (ObservableList<Document>) lvDocument.getSelectionModel().getSelectedItems();
+
+        System.out.println("documentsSelected" + documentsSelected);
+
+        documentsSelected.stream().forEach((d) ->
+        {
+            String title = d.getTitle();
+            String type = d.getType();
+
+            String encryptedFilePath = "./DKDocuments/" + title + ".encoded";
+            String decodedFilePath = "./DKDocuments/Temp/" + title + "." + type;
+
+            // Decode file and put in Temp dir 
+            File encryptedFile = new File(encryptedFilePath);
+            File decodedFile = new File(decodedFilePath);
+            try
+            {
+                encryption.decrypt("abcdefghijklmnop", encryptedFile, decodedFile);
+            } catch (CryptoException ex)
+            {
+                Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            try
+            {
+                // Open decoded file with default program
+                Desktop.getDesktop().open(decodedFile);
+            } catch (IOException ex)
+            {
+                Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        });
 
     }
 
     @FXML
-    void handleEditButton(ActionEvent event) {
+    void handleExportButton(ActionEvent event)
+    {
+
+    }
+
+    @FXML
+    void handleEditButton(ActionEvent event)
+    {
         switchToEditFrameScene(event);
     }
     
-    private void copyFile(File file) {
-        //Creates destination for copied file based on it's default name
-        String destFileName = "./DKDocuments/" + file.getName();
-        
-        try {
-            File dest = new File(destFileName);
-
-            Files.copy(file.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ex) {
-            Logger.getLogger(
-                HomeFrameController.class.getName()).log(
-                    Level.SEVERE, null, ex
-                );
-        }
-    }
     
     @FXML private void lvDocumentSelected() {
         ObservableList<Document> documentSelected = (ObservableList<Document>)lvDocument.getSelectionModel().getSelectedItems();
         lblSelectedDocument.setText("");
-        
+
         System.out.println(documentSelected.get(0).getTitle());
-        
+
         documentSelected.stream().forEach((d) ->
         {
-            if (lblSelectedDocument.getText().equals("")) {
+            if (lblSelectedDocument.getText().equals(""))
+            {
                 lblSelectedDocument.setText(d.getTitle());
                 lblTags.setText(d.getTags() + "\n");
-                
+
                 //Hämta alla dokument med en for loop
                 String title = d.getTitle();
                 lblLinkedDocuments.setText(title + "\n");
                 paneMetadata.setVisible(true);
-            } else {
+            } else
+            {
                 //Visa bara gemensamma länkade dokument och taggar
                 lblSelectedDocument.setText(lblSelectedDocument.getText() + ", " + d.getTitle());
                 lblTags.setText(lblTags.getText() + d.getTags() + "\n");
                 paneMetadata.setVisible(false);
             }
         });
-        
+
         System.out.println(documentSelected.get(0).getTitle());
-        
+
         lblTitle.setText("Title: " + documentSelected.get(0).getTitle());
         lblType.setText("Type: " + documentSelected.get(0).getType());
         lblFileSize.setText("File size: " + documentSelected.get(0).getFile_size());
@@ -192,22 +246,26 @@ public class HomeFrameController implements Initializable {
     }
 
     @FXML
-    private void search() {
+    private void search()
+    {
         obsDocumentList.clear();
         obsDocumentList.addAll(
-        dbConnection.searchForDocumentByTitleOrTag(tfSearch.getText()));
+                dbConnection.searchForDocumentByTitleOrTag(tfSearch.getText()));
     }
 
     @FXML
-    void handleClearSearchButton() {
+    void handleClearSearchButton()
+    {
         tfSearch.clear();
         obsDocumentList.clear();
         obsDocumentList.addAll(
-        dbConnection.getAllDocuments());
+                dbConnection.getAllDocuments());
     }
 
-    private void switchToEditFrameScene(ActionEvent event) {
-        try {
+    private void switchToEditFrameScene(ActionEvent event)
+    {
+        try
+        {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("EditFrame.fxml"));
             Parent root = (Parent) loader.load();
             EditFrameController controller = (EditFrameController) loader.getController();
@@ -217,48 +275,24 @@ public class HomeFrameController implements Initializable {
             Scene scene = new Scene(root);
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(scene);
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
-    private List getSelectedDocuments() {
+    private List getSelectedDocuments()
+    {
         List<Document> selectedDocuments = new ArrayList();
         ObservableList<Document> obsSelectedItems = lvDocument.getSelectionModel().getSelectedItems();
-        for (Document d : obsSelectedItems) {
+        for (Document d : obsSelectedItems)
+        {
             selectedDocuments.add(d);
         }
         return selectedDocuments;
     }
-
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        System.out.println("debagger HomeFrameController");
-        dbConnection = new DBConnection();
-        lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        
-        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateString = "2018-02-01";
-        Date dateObject = new Date();
-        try {
-            dateObject = sdf.parse(dateString);
-        } catch (ParseException ex) {
-            Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        List<Integer> aList = new ArrayList<>();
-        aList.add(1);
-        aList.add(2);
-        List<String> tagList = new ArrayList<>();
-        tagList.add("untagged");
-        
-        fileList = new ArrayList();
-        fileList.add(new Document(1, "Cooper", ".txt", "54kb", "test", "test", aList, tagList));
-        fileList.add(new Document(2, "Rose", ".doc", "100kb", "test", "test", aList, tagList));
-        fileList.add(new Document(3, "Magnus", ".jpg", "12kb", "test", "test", aList, tagList));
-        
-        System.out.println(fileList.get(1).toString());
-        
+    
+    public void updateListView(){
         documentList = dbConnection.getAllDocuments();
         
         System.out.println(documentList.toString());
@@ -267,5 +301,40 @@ public class HomeFrameController implements Initializable {
         lvDocument.setItems(obsDocumentList);
 
         lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb)
+    {
+        System.out.println("debagger HomeFrameController");
+        dbConnection = new DBConnection();
+        lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dateString = "2018-02-01";
+        Date dateObject = new Date();
+        try
+        {
+            dateObject = sdf.parse(dateString);
+        } catch (ParseException ex)
+        {
+            Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        List<Integer> aList = new ArrayList<>();
+        aList.add(1);
+        aList.add(2);
+        List<String> tagList = new ArrayList<>();
+        tagList.add("untagged");
+
+        fileList = new ArrayList();
+        fileList.add(new Document(1, "Cooper", ".txt", "54kb", "test", "test", aList, tagList));
+        fileList.add(new Document(2, "Rose", ".doc", "100kb", "test", "test", aList, tagList));
+        fileList.add(new Document(3, "Magnus", ".jpg", "12kb", "test", "test", aList, tagList));
+        
+        System.out.println(fileList.get(1).toString()); 
+        
+        updateListView();
+        
     }
 }
