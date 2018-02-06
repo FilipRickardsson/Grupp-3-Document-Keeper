@@ -40,6 +40,18 @@ public class Document {
         this.date_imported = date_imported;
         this.date_created = date_created;
     }
+    
+    public Document(int id, String title, String type, String file_size, String date_imported, String date_created, List<Integer> linkedDocuments, List<String> tags)
+    {
+        this.id = id;
+        this.title = title;
+        this.type = type;
+        this.file_size = file_size;
+        this.date_imported = date_imported;
+        this.date_created = date_created;
+        this.linkedDocuments = new ArrayList<>(linkedDocuments);
+        this.tags = new ArrayList<>(tags);
+    }
 
     public Document(int id, String title, String type, String file_size, String date_imported, String date_created, List<Integer> linkedDocuments, List<String> tags) {
         this.id = id;
