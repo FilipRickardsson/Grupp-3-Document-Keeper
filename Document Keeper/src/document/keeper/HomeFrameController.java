@@ -67,10 +67,10 @@ public class HomeFrameController implements Initializable {
     private Button importButton, exportButton, editButton;
 
     @FXML
-    private Label labelChosedFiles, labelMetadata, lblSelectedDocument;
+    private Label labelChosedFiles, labelMetadata, lblSelectedDocument, lblTitle, 
+            lblType, lblFileSize, lblDateImported, lblDateCreated, lblTags, lblLinkedDocuments,
+            lblLinkedDocumentsfeedbackMessage, labelFeedbackMessage;
     
-    @FXML private Label lblTitle, lblType, lblFileSize, lblDateImported, lblDateCreated, lblTags,
-            lblLinkedDocuments;
     
     @FXML private Pane paneMetadata;
     
@@ -80,6 +80,8 @@ public class HomeFrameController implements Initializable {
     void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
+        int documentListSize = documentList.size();
+        
         //Opens file chooser
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Import files");
@@ -93,16 +95,34 @@ public class HomeFrameController implements Initializable {
                 String filePath = "./DKDocuments/" + file.getName();
                 String encryptedFilePath = filePath.substring(0, filePath.lastIndexOf('.'));
                 String encryptedFilePathEnding = encryptedFilePath + ".encoded";
+                
                 // Creates empty file
                 File encryptedFile = new File(encryptedFilePathEnding);
+                
                 // Encrypts and copies imported file to newly created file 
                 encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
+                
                 // Creates document with extracted metadata
                 Document documentToDB = extractMetaData(file);
+                
                 // Send list with documents to DB
                 dbConnection.insertDocument(documentToDB);
 
             }
+            updateListView();
+            
+            //Compare list before with list after 
+            int importedDocuments = documentList.size() - documentListSize;
+            
+            //Message about imported files       
+            if (importedDocuments > 1){
+                labelFeedbackMessage.setText("You succesfully imported " + importedDocuments + " documents.");
+            }
+            else
+            {
+                labelFeedbackMessage.setText("You succesfully imported a document.");
+            }
+            
         }
     }
 
@@ -142,21 +162,6 @@ public class HomeFrameController implements Initializable {
         switchToEditFrameScene(event);
     }
     
-    private void copyFile(File file) {
-        //Creates destination for copied file based on it's default name
-        String destFileName = "./DKDocuments/" + file.getName();
-        
-        try {
-            File dest = new File(destFileName);
-
-            Files.copy(file.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ex) {
-            Logger.getLogger(
-                HomeFrameController.class.getName()).log(
-                    Level.SEVERE, null, ex
-                );
-        }
-    }
     
     @FXML private void lvDocumentSelected() {
         ObservableList<Document> documentSelected = (ObservableList<Document>)lvDocument.getSelectionModel().getSelectedItems();
@@ -228,6 +233,17 @@ public class HomeFrameController implements Initializable {
         }
         return selectedDocuments;
     }
+    
+    public void updateListView(){
+        documentList = dbConnection.getAllDocuments();
+        
+        System.out.println(documentList.toString());
+
+        obsDocumentList = FXCollections.observableArrayList(documentList);
+        lvDocument.setItems(obsDocumentList);
+
+        lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -255,15 +271,9 @@ public class HomeFrameController implements Initializable {
         fileList.add(new Document(2, "Rose", ".doc", "100kb", "test", "test", aList, tagList));
         fileList.add(new Document(3, "Magnus", ".jpg", "12kb", "test", "test", aList, tagList));
         
-        System.out.println(fileList.get(1).toString());
+        System.out.println(fileList.get(1).toString()); 
         
-        documentList = dbConnection.getAllDocuments();
+        updateListView();
         
-        System.out.println(documentList.toString());
-
-        obsDocumentList = FXCollections.observableArrayList(documentList);
-        lvDocument.setItems(obsDocumentList);
-
-        lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 }
