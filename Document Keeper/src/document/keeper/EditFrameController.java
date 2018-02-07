@@ -23,32 +23,32 @@ import javafx.stage.Stage;
 import org.controlsfx.control.textfield.TextFields;
 
 public class EditFrameController implements Initializable {
-
+    
     private DBConnection dbConnection;
     private SuggestionProvider<String> provider;
     private List<String> tagSuggestions;
     private List<Document> documentsToEdit;
-
+    
     @FXML
     Label lblHeader;
-
+    
     @FXML
     ListView lvTags;
-
+    
     @FXML
     TextField tfAddTag;
-
+    
     @FXML
     ObservableList<String> obsTagsList;
-
+    
     public void setDocumentsToEdit(List documentsToEdit) {
         this.documentsToEdit = documentsToEdit;
     }
-
+    
     public void setDBConnection(DBConnection dbConnection) {
         this.dbConnection = dbConnection;
     }
-
+    
     private void setHeaderText() {
         String headerTxt = "Editing: ";
         for (int i = 0; i < documentsToEdit.size(); i++) {
@@ -59,40 +59,41 @@ public class EditFrameController implements Initializable {
         }
         lblHeader.setText(headerTxt);
     }
-
+    
     private void addTagsToTagsListView() {
-
-        List documentsToEditTags = new ArrayList();
-        for (Document d : documentsToEdit) {
-            for (String tag : d.getTags()) {
-                if (!documentsToEditTags.contains(tag)) {
-                    documentsToEditTags.add(tag);
-                }
+        List commonTags = new ArrayList();
+        
+        for (int i = 0; i < documentsToEdit.size(); i++) {
+            if (i == 0) {
+                commonTags.addAll(documentsToEdit.get(i).getTags());
+            } else {
+                //Visa bara gemensamma taggar
+                commonTags.retainAll(documentsToEdit.get(i).getTags());
             }
+            
+            obsTagsList.clear();
+            obsTagsList.addAll(commonTags);
         }
-        obsTagsList.addAll(documentsToEditTags);
     }
-
+    
     @FXML
     private void handleTagOnKeyReleased() {
-
         tagSuggestions = dbConnection.getTagsuggestions(tfAddTag.getText());
         provider.clearSuggestions();
         provider.addPossibleSuggestions(tagSuggestions);
     }
-
+    
     @FXML
     private void handleButtonAddTag() {
-        if (tfAddTag.getText().matches("[a-zA-Z0-9]*") && tfAddTag.getText().contains(" ") == false && tfAddTag.getText().length() > 0) {
-            boolean tagAdded = dbConnection.addTag(tfAddTag.getText());
-
-            if (tagAdded) {
-                obsTagsList.add(tfAddTag.getText());
-                tfAddTag.clear();
-            }
+        String tag = tfAddTag.getText().toLowerCase();
+        
+        if (tag.matches("[a-zA-Z0-9]*") && tag.contains(" ") == false && tag.length() > 0) {
+            dbConnection.addTag(tag);
+            dbConnection.addTagToDocument(tag, documentsToEdit);
+            obsTagsList.add(tag);
         }
     }
-
+    
     @FXML
     private void handleButtonDone(ActionEvent event) {
         try {
@@ -105,12 +106,12 @@ public class EditFrameController implements Initializable {
             ex.printStackTrace();
         }
     }
-
+    
     public void initScene() {
         setHeaderText();
         addTagsToTagsListView();
     }
-
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         obsTagsList = FXCollections.observableArrayList();
@@ -118,9 +119,9 @@ public class EditFrameController implements Initializable {
         tagSuggestions = new ArrayList<>();
         tagSuggestions.add("Bosse");
         tagSuggestions.add("Sossa");
-
+        
         provider = SuggestionProvider.create(tagSuggestions);
         new AutoCompletionTextFieldBinding<>(tfAddTag, provider);
     }
-
+    
 }

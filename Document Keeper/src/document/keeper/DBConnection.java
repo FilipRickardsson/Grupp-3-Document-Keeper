@@ -159,7 +159,7 @@ public class DBConnection {
                     + "SELECT NAME FROM APP.TAG \n"
                     + "WHERE \n"
                     + "LOWER(NAME)LIKE LOWER('" + searchStr + "%')"
-                    );
+            );
 
             while (results.next()) {
                 tagSuggestions.add(results.getString(1));
@@ -173,32 +173,30 @@ public class DBConnection {
         }
         return tagSuggestions;
     }
-    public boolean addTag(String tagName){
-        
-        boolean tagAdded = false;
-        
+
+    public boolean addTag(String tagName) {
         try {
             stmt = conn.createStatement();
-            
-            ResultSet results = stmt.executeQuery(""
-                    + "SELECT DISTINCT tagname FROM APP.DOCUMENT\n"
-                    + "JOIN APP.DOCUMENT_HAS_TAGS\n"
-                    + "ON APP.DOCUMENT.ID = APP.DOCUMENT_HAS_TAGS.DOCUMENTID\n"
-                    + "WHERE \n"
-                    + "LOWER(tagName) = '" + tagName.toLowerCase() + "'");
-            
-                    
-            if(!results.next()){
-                System.out.println("addTag");
-                tagAdded = true;
-            }
-            
-            results.close();
-            stmt.close();
-        } catch (SQLException sqlExcept) {
-            sqlExcept.printStackTrace();
-        }
-        return tagAdded;
-    }
-}
+            stmt.executeUpdate("INSERT INTO APP.TAG VALUES ('" + tagName + "')");
 
+            stmt.close();
+            return true;
+        } catch (SQLException sqlExcept) {
+            return false;
+        }
+    }
+
+    public void addTagToDocument(String tagName, List<Document> documentsToEdit) {
+        documentsToEdit.stream().forEach((document) -> {
+            try {
+                stmt = conn.createStatement();
+                stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_TAGS "
+                        + "VALUES (" + document.getId() + ",'" + tagName + "')");
+
+                stmt.close();
+            } catch (SQLException sqlExcept) {
+            }
+        });
+    }
+
+}
