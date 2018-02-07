@@ -270,6 +270,8 @@ public class HomeFrameController implements Initializable
             Parent root = (Parent) loader.load();
             EditFrameController controller = (EditFrameController) loader.getController();
             controller.setDocumentsToEdit(getSelectedDocuments());
+            controller.setDBConnection(dbConnection);
+            controller.initScene();
             Scene scene = new Scene(root);
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(scene);
