@@ -124,7 +124,7 @@ public class DBConnection {
                 stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_TAGS "
                         + "(documentid, tagname) VALUES ("
                         + insertedDocumentId + ","
-                        + "'Untagged')");
+                        + "'untagged')");
             }
 
             stmt.close();
@@ -192,6 +192,11 @@ public class DBConnection {
                 stmt = conn.createStatement();
                 stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_TAGS "
                         + "VALUES (" + document.getId() + ",'" + tagName + "')");
+
+                stmt = conn.createStatement();
+                stmt.executeUpdate("DELETE FROM APP.DOCUMENT_HAS_TAGS "
+                        + "WHERE documentid = " + document.getId()
+                        + "AND tagname = 'untagged'");
 
                 stmt.close();
             } catch (SQLException sqlExcept) {
