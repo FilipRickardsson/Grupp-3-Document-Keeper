@@ -44,11 +44,11 @@
                                           <Font size="30.0" />
                                        </font>
                                     </Label>
-                                    <ListView prefHeight="325.0" prefWidth="639.0" />
+                                    <ListView fx:id="lvLinkedDocuments" prefHeight="325.0" prefWidth="639.0" />
                                     <HBox spacing="20.0">
                                        <children>
-                                          <TextField prefWidth="320.0" />
-                                          <Button mnemonicParsing="false" text="Add" />
+                                          <TextField fx:id="tfAddLinkedDocument" prefWidth="320.0" />
+                                          <Button mnemonicParsing="false" onAction="#handleButtonAddLinkedDocument" text="Add" />
                                        </children>
                                     </HBox>
                                  </children>

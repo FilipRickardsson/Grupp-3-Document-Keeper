@@ -17,7 +17,7 @@ public class Document {
     private String date_imported;
     private String date_created;
 
-    private List<Integer> linkedDocuments;
+    private List<Document> linkedDocuments;
     private List<String> tags;
 
 
@@ -45,7 +45,7 @@ public class Document {
         tags = new ArrayList<>();
     }
     
-    public Document(int id, String title, String type, String file_size, String date_imported, String date_created, List<Integer> linkedDocuments, List<String> tags)
+    public Document(int id, String title, String type, String file_size, String date_imported, String date_created, List<Document> linkedDocuments, List<String> tags)
     {
         this.id = id;
         this.title = title;
@@ -110,11 +110,11 @@ public class Document {
         this.date_created = date_created;
     }
 
-    public List<Integer> getLinkedDocuments() {
+    public List<Document> getLinkedDocuments() {
         return linkedDocuments;
     }
 
-    public void setLinkedDocuments(List<Integer> linkedDocuments) {
+    public void setLinkedDocuments(List<Document> linkedDocuments) {
         this.linkedDocuments = linkedDocuments;
     }
 

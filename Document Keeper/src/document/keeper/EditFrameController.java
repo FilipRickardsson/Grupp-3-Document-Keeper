@@ -20,7 +20,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.controlsfx.control.textfield.TextFields;
 
 public class EditFrameController implements Initializable {
 
@@ -33,13 +32,13 @@ public class EditFrameController implements Initializable {
     Label lblHeader;
 
     @FXML
-    ListView lvTags;
+    ListView lvTags, lvLinkedDocuments;
 
     @FXML
-    TextField tfAddTag;
+    TextField tfAddTag, tfAddLinkedDocument;
 
     @FXML
-    ObservableList<String> obsTagsList;
+    ObservableList<String> obsTagsList, obsLinkedDocumentsList;
 
     public void setDocumentsToEdit(List documentsToEdit) {
         this.documentsToEdit = documentsToEdit;
@@ -76,6 +75,22 @@ public class EditFrameController implements Initializable {
         }
     }
 
+    private void addLinkedDocumentsToListView() {
+        List commonLinkedDocuments = new ArrayList();
+
+        for (int i = 0; i < documentsToEdit.size(); i++) {
+            if (i == 0) {
+                commonLinkedDocuments.addAll(documentsToEdit.get(i).getLinkedDocuments());
+            } else {
+                //Visa bara gemensamma document
+                commonLinkedDocuments.retainAll(documentsToEdit.get(i).getLinkedDocuments());
+            }
+        }
+
+        obsLinkedDocumentsList.clear();
+        obsLinkedDocumentsList.addAll(commonLinkedDocuments);
+    }
+
     @FXML
     private void handleTagOnKeyReleased() {
         tagSuggestions = dbConnection.getTagsuggestions(tfAddTag.getText());
@@ -89,14 +104,25 @@ public class EditFrameController implements Initializable {
 
         if (tag.matches("[a-zA-Z0-9]*") && tag.contains(" ") == false && tag.length() > 0) {
             dbConnection.addTag(tag);
-            dbConnection.addTagToDocument(tag, documentsToEdit);
-            obsTagsList.add(tag);
+            boolean insertionSuccess = dbConnection.addTagToDocument(tag, documentsToEdit);
+            if (insertionSuccess) {
+                obsTagsList.add(tag);
+            }
 
             obsTagsList.stream().forEach((t) -> {
-                if(t.equals("untagged")) {
+                if (t.equals("untagged")) {
                     obsTagsList.remove(t);
                 }
             });
+        }
+    }
+
+    @FXML
+    private void handleButtonAddLinkedDocument() {
+        String titleOfDocumentToLink = tfAddLinkedDocument.getText();
+        boolean insertionSuccess = dbConnection.addLinkedDocument(titleOfDocumentToLink, documentsToEdit);
+        if (insertionSuccess) {
+            obsLinkedDocumentsList.add(titleOfDocumentToLink);
         }
     }
 
@@ -116,15 +142,16 @@ public class EditFrameController implements Initializable {
     public void initScene() {
         setHeaderText();
         addTagsToTagsListView();
+        addLinkedDocumentsToListView();
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         obsTagsList = FXCollections.observableArrayList();
+        obsLinkedDocumentsList = FXCollections.observableArrayList();
         lvTags.setItems(obsTagsList);
+        lvLinkedDocuments.setItems(obsLinkedDocumentsList);
         tagSuggestions = new ArrayList<>();
-        tagSuggestions.add("Bosse");
-        tagSuggestions.add("Sossa");
 
         provider = SuggestionProvider.create(tagSuggestions);
         new AutoCompletionTextFieldBinding<>(tfAddTag, provider);

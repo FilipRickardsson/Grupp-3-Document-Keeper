@@ -77,6 +77,7 @@ public class DBConnection {
                     results.getString(5),
                     results.getString(6));
             newDocument.setTags(getDocumentTags(newDocument.getId()));
+            newDocument.setLinkedDocuments(getDocumentLinkedDocuments(newDocument.getId()));
 
             fetchedDocuments.add(newDocument);
         }
@@ -104,6 +105,26 @@ public class DBConnection {
             sqlExcept.printStackTrace();
         }
         return tags;
+    }
+
+    private List<Document> getDocumentLinkedDocuments(int documentId) {
+        List<Document> linkedDocuments = new ArrayList();
+        try {
+            stmt = conn.createStatement();
+            ResultSet results = stmt.executeQuery(""
+                    + "SELECT DISTINCT id, title, type, file_size, date_imported, date_created  "
+                    + "FROM APP.DOCUMENT "
+                    + "JOIN APP.DOCUMENT_HAS_DOCUMENTS "
+                    + "ON APP.DOCUMENT.ID = APP.DOCUMENT_HAS_DOCUMENTS.DOCUMENTID2 "
+                    + "WHERE APP.DOCUMENT_HAS_DOCUMENTS.DOCUMENTID1 = " + documentId);
+
+            linkedDocuments = createDocuments(results);
+            results.close();
+            stmt.close();
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
+        }
+        return linkedDocuments;
     }
 
     public boolean insertDocument(Document newDocument) {
@@ -186,8 +207,9 @@ public class DBConnection {
         }
     }
 
-    public void addTagToDocument(String tagName, List<Document> documentsToEdit) {
-        documentsToEdit.stream().forEach((document) -> {
+    public boolean addTagToDocument(String tagName, List<Document> documentsToEdit) {
+        int failedInsertions = 0;
+        for (Document document : documentsToEdit) {
             try {
                 stmt = conn.createStatement();
                 stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_TAGS "
@@ -200,8 +222,27 @@ public class DBConnection {
 
                 stmt.close();
             } catch (SQLException sqlExcept) {
+                System.out.println("debagger failedInsertions");
+                failedInsertions++;
             }
-        });
+        }
+        return failedInsertions != documentsToEdit.size();
+    }
+
+    public boolean addLinkedDocument(String titleOfDocumentToLink, List<Document> documentsToEdit) {
+        int failedInsertions = 0;
+        for (Document document : documentsToEdit) {
+            try {
+                stmt = conn.createStatement();
+                stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_DOCUMENTS "
+                        + "VALUES (" + document.getId() + "," + idOfDocumentToLink + ")");
+
+                stmt.close();
+            } catch (SQLException sqlExcept) {
+                failedInsertions++;
+            }
+        }
+        return failedInsertions != documentsToEdit.size();
     }
 
 }
