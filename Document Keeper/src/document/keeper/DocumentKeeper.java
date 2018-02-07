@@ -38,7 +38,7 @@ public class DocumentKeeper extends Application
         primaryStage.setOnCloseRequest(evt ->
         {
             // prevent window from closing
-            evt.consume();
+//            evt.consume();
 
             // call shutdown() to check and delete files
             shutdown(primaryStage);
