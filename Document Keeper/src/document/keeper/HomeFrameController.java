@@ -191,11 +191,8 @@ public class HomeFrameController implements Initializable
     }
 
     @FXML
-<<<<<<< Updated upstream
     void handleExportButton(ActionEvent event)
     {
-=======
-    void handleExportButton(ActionEvent event) {
         //Opens file chooser with save dialog
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();     
         
@@ -222,7 +219,6 @@ public class HomeFrameController implements Initializable
         
         
         //save to computer's directory
->>>>>>> Stashed changes
 
     }
 
