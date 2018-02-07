@@ -54,8 +54,7 @@
                                        </children>
                                     </HBox>
                                     <Label fx:id="labelFeedbackMessage" />
-                                    <ListView fx:id="lvDocument" onKeyReleased="#lvDocumentSelected" onMouseClicked="#lvDocumentSelected" prefHeight="695.0" prefWidth="412.0" />
-                                    <Label fx:id="feedbackMessage" />
+                                    <ListView fx:id="lvDocument" onKeyReleased="#lvDocumentSelected" onMouseClicked="#lvDocumentSelected" prefHeight="695.0" prefWidth="412.0" />                              
                                  </children>
                               </VBox>
                            </children>
