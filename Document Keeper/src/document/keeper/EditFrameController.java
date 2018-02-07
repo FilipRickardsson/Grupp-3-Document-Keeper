@@ -2,17 +2,24 @@ package document.keeper;
 
 import impl.org.controlsfx.autocompletion.AutoCompletionTextFieldBinding;
 import impl.org.controlsfx.autocompletion.SuggestionProvider;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import org.controlsfx.control.textfield.TextFields;
 
 public class EditFrameController implements Initializable {
@@ -78,11 +85,24 @@ public class EditFrameController implements Initializable {
     private void handleButtonAddTag() {
         if (tfAddTag.getText().matches("[a-zA-Z0-9]*") && tfAddTag.getText().contains(" ") == false && tfAddTag.getText().length() > 0) {
             boolean tagAdded = dbConnection.addTag(tfAddTag.getText());
-            
+
             if (tagAdded) {
                 obsTagsList.add(tfAddTag.getText());
                 tfAddTag.clear();
             }
+        }
+    }
+
+    @FXML
+    private void handleButtonDone(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("HomeFrame.fxml"));
+            Parent root = (Parent) loader.load();
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
