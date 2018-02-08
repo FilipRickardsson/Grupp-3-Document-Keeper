@@ -8,12 +8,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
+import static java.nio.file.Files.list;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
@@ -41,11 +36,14 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -84,9 +82,13 @@ public class HomeFrameController implements Initializable {
 
     @FXML
     private Pane paneMetadata;
+    
+    @FXML private ProgressBar progressBar;
 
     @FXML
     void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException {
+    void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException, InterruptedException
+    {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
         int documentListSize = documentList.size();
@@ -98,27 +100,9 @@ public class HomeFrameController implements Initializable {
         //File selectedFile = fileChooser.showOpenDialog(stage);
         List<File> list = fileChooser.showOpenMultipleDialog(stage);
 
-        if (list != null) {
-            for (File file : list) {
-                // creates filepath 
-                String filePath = "./DKDocuments/" + file.getName();
-                String encryptedFilePath = filePath.substring(0, filePath.lastIndexOf('.'));
-                String encryptedFilePathEnding = encryptedFilePath + ".encoded";
-
-                // Creates empty file
-                File encryptedFile = new File(encryptedFilePathEnding);
-
-                // Encrypts and copies imported file to newly created file 
-                encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
-
-                // Creates document with extracted metadata
-                Document documentToDB = extractMetaData(file);
-
-                // Send list with documents to DB
-                dbConnection.insertDocument(documentToDB);
-
-            }
-            updateListView();
+        if (list != null)
+        {   
+            importDocuments(list);
 
             //Compare list before with list after 
             int importedDocuments = documentList.size() - documentListSize;
@@ -133,8 +117,58 @@ public class HomeFrameController implements Initializable {
 
         }
     }
+    
+    //Skapar en task och kopplar den till vår progress bar
+    public void importDocuments(List<File> list) {
+        Task<Void> task;
+        task = new Task<Void>() {
+            @Override
+            public Void call() throws CryptoException, IOException {
+                for (int i = 0; i < list.size(); i++)
+                {
+                    File file = list.get(i);
+                    // creates filepath 
+                    String filePath = "./DKDocuments/" + file.getName();
+                    String encryptedFilePath = filePath.substring(0, filePath.lastIndexOf('.'));
+                    String encryptedFilePathEnding = encryptedFilePath + ".encoded";
 
-    public Document extractMetaData(File file) throws IOException {
+                    // Creates empty file
+                    File encryptedFile = new File(encryptedFilePathEnding);
+                    
+                    // Encrypts and copies imported file to newly created file 
+                    encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
+
+                    // Creates document with extracted metadata
+                    Document documentToDB = extractMetaData(file);
+
+                    // Send list with documents to DB
+                    dbConnection.insertDocument(documentToDB);
+                    
+                    updateProgress(i, list.size());
+                }
+                //Uppdaterar grafiskt när tråden har avslutats
+                Platform.runLater(new Runnable() {
+                    @Override public void run() {
+                        updateListView();
+                        progressBar.setVisible(false);
+                    }
+                });
+                
+                return null;
+            }
+        };
+        
+        progressBar.setVisible(true);
+        progressBar.progressProperty().unbind();
+        progressBar.progressProperty().bind(task.progressProperty());
+        
+        Thread th = new Thread(task);
+        th.setDaemon(true);
+        th.start();
+    }
+
+    public Document extractMetaData(File file) throws IOException
+    {
 
         DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         String fileSize = String.valueOf(file.length());

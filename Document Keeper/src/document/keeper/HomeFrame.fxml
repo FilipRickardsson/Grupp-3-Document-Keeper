@@ -32,6 +32,11 @@
                               <Insets left="40.0" />
                            </HBox.margin>
                         </Button>
+                        <ProgressBar fx:id="progressBar" prefWidth="200.0" progress="0.0" visible="false">
+                           <HBox.margin>
+                              <Insets left="250.0" top="5.0" />
+                           </HBox.margin>
+                        </ProgressBar>
                      </children>
                   </HBox>
                </children>
