@@ -1,6 +1,8 @@
 package document.keeper;
 
 import java.awt.Desktop;
+import java.awt.Insets;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -39,13 +41,18 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Modality;
 
 /**
  * FXML Controller class
@@ -153,77 +160,72 @@ public class HomeFrameController implements Initializable {
         return document;
     }
 
-    //Creates new textfile with default name, located in temp folder. When saved 
-    //decrypts and places file in DKDocuments folder  
     @FXML
     void handleNewButton(ActionEvent event) throws CryptoException, IOException, InterruptedException {
 
-        DateFormat df = new SimpleDateFormat("ddMMyyyy HHmmss");
-        Date date = new Date();
-        String defaultName = df.format(date);
-        File defaultFile = new File("./DKDocuments/Temp/" + defaultName + ".txt");
-        defaultFile.createNewFile();
+        Button saveBtn = new Button();
+        saveBtn.setText("Save");
 
-        try {
-            // Open file with default texteditor
-            Desktop.getDesktop().open(defaultFile);
-        } catch (IOException ex) {
-            Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        Stage primStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        final Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(primStage);
+        VBox mainBox = new VBox();
+        VBox dialogVbox = new VBox();
+        VBox savBtnVbox = new VBox();
+        savBtnVbox.setAlignment(Pos.BOTTOM_RIGHT);
+        TextArea textArea = new TextArea();
+        textArea.setPromptText("Write your text here");
+        dialogVbox.getChildren().add(textArea);
 
-        // Thread that checks if the document has changed. On change saves to DB and places in directory
-        Runnable runNewDocument = new Runnable() {
-            public void run() {
-                final Path path = Paths.get("./DKDocuments/Temp/");
-                System.out.println("path " + path);
-                try (final WatchService watchService = FileSystems.getDefault().newWatchService()) {
-                    final WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-                    while (true) {
-                        final WatchKey wk = watchService.take();
-                        for (WatchEvent<?> event : wk.pollEvents()) {
-                            //we only register "ENTRY_MODIFY" so the context is always a Path.
-                            final Path changed = (Path) event.context();
-                            System.out.println("changed " + changed);
-                            if (changed.endsWith(defaultName + ".txt")) {
-                            
-                            // Creates path for encrypted file
-                            File encryptedFile = new File("./DKDocuments/" + defaultName + ".encoded");
+        savBtnVbox.getChildren().add(saveBtn);
 
-                            // Encrypts and copies imported file to newly created file 
-                            encryption.encrypt("abcdefghijklmnop", defaultFile, encryptedFile);
+        mainBox.getChildren().add(dialogVbox);
+        mainBox.getChildren().add(savBtnVbox);
 
-                            // Creates document with extracted metadata
-                            Document documentToDB = extractMetaData(defaultFile);
+        Scene dialogScene = new Scene(mainBox, 300, 200);
+        dialog.setScene(dialogScene);
+        dialog.show();
 
-                            // Send list with documents to DB
-                            dbConnection.insertDocument(documentToDB);
+        //When button "Save" is pressed the text is saved to a texteditor file and saved to DB
+        saveBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
 
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    updateListView();
-                                }
-                            });
-  
-                                System.out.println("My file has changed");
-                               // defaultFile.delete();
-                            }
-                        }
-                        // reset the key
-                        boolean valid = wk.reset();
-                        if (!valid) {
-                            System.out.println("Key has been unregistered");
-                        }
+                //DateFormat to give new file a unique default name
+                DateFormat df = new SimpleDateFormat("ddMMyyyy HHmmss");
+                Date date = new Date();
+                String defaultName = df.format(date);
+                File defaultFile = new File("./DKDocuments/Temp/" + defaultName + ".txt");
+                String defaultPath = defaultFile.getAbsolutePath();
+                //Write text area to textfile
+                try {
+
+                    try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(defaultPath))) {
+                        writer.write(textArea.getText());                     
                     }
-                } catch (IOException| InterruptedException |CryptoException ex) {
+
+                    //Creates path for encrypted file
+                    File encryptedFile = new File("./DKDocuments/" + defaultName + ".encoded");
+
+                    // Encrypts and copies imported file to newly created file 
+                    encryption.encrypt("abcdefghijklmnop", defaultFile, encryptedFile);
+
+                    // Creates document with extracted metadata
+                    Document documentToDB = extractMetaData(defaultFile);
+
+                    // Send list with documents to DB
+                    dbConnection.insertDocument(documentToDB);
+
+                    updateListView();
+                    
+                    dialog.close();
+
+                } catch (IOException | CryptoException ex) {
                     Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
-                } 
+                }
             }
-        };
-
-        Thread thread = new Thread(runNewDocument);
-        thread.start();
-
+        });
     }
 
     @FXML
