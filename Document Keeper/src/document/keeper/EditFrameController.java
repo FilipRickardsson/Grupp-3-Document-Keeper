@@ -89,11 +89,13 @@ public class EditFrameController implements Initializable {
 
         if (tag.matches("[a-zA-Z0-9]*") && tag.contains(" ") == false && tag.length() > 0) {
             dbConnection.addTag(tag);
-            dbConnection.addTagToDocument(tag, documentsToEdit);
-            obsTagsList.add(tag);
+            boolean insertionSuccess = dbConnection.addTagToDocument(tag, documentsToEdit);
+            if (insertionSuccess) {
+                obsTagsList.add(tag);
+            }
 
             obsTagsList.stream().forEach((t) -> {
-                if(t.equals("untagged")) {
+                if (t.equals("untagged")) {
                     obsTagsList.remove(t);
                 }
             });
