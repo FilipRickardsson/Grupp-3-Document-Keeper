@@ -186,8 +186,9 @@ public class DBConnection {
         }
     }
 
-    public void addTagToDocument(String tagName, List<Document> documentsToEdit) {
-        documentsToEdit.stream().forEach((document) -> {
+    public boolean addTagToDocument(String tagName, List<Document> documentsToEdit) {
+        int failedInsertions = 0;
+        for (Document document : documentsToEdit) {
             try {
                 stmt = conn.createStatement();
                 stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_TAGS "
@@ -200,8 +201,10 @@ public class DBConnection {
 
                 stmt.close();
             } catch (SQLException sqlExcept) {
+                failedInsertions++;
             }
-        });
+        }
+        return failedInsertions != documentsToEdit.size();
     }
 
 }
