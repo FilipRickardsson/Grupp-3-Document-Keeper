@@ -9,6 +9,7 @@ import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import static java.nio.file.Files.list;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
@@ -39,6 +40,7 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.concurrent.Task;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -82,50 +84,49 @@ public class HomeFrameController implements Initializable {
 
     @FXML
     private Pane paneMetadata;
-    
-    @FXML private ProgressBar progressBar;
+
+    @FXML
+    private ProgressBar progressBar;
 
     @FXML
     void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException {
-    void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException, InterruptedException
-    {
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        {
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-        int documentListSize = documentList.size();
+            int documentListSize = documentList.size();
 
-        //Opens file chooser
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Import files");
+            //Opens file chooser
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Import files");
 
-        //File selectedFile = fileChooser.showOpenDialog(stage);
-        List<File> list = fileChooser.showOpenMultipleDialog(stage);
+            //File selectedFile = fileChooser.showOpenDialog(stage);
+            List<File> list = fileChooser.showOpenMultipleDialog(stage);
 
-        if (list != null)
-        {   
-            importDocuments(list);
+            if (list != null) {
+                importDocuments(list);
 
-            //Compare list before with list after 
-            int importedDocuments = documentList.size() - documentListSize;
+                //Compare list before with list after 
+                int importedDocuments = documentList.size() - documentListSize;
 
-            //Message about imported files       
-            if (importedDocuments > 1) {
-                labelFeedbackMessage.setText("You succesfully imported "
-                        + importedDocuments + " documents.");
-            } else {
-                labelFeedbackMessage.setText("You succesfully imported a document.");
+                //Message about imported files       
+                if (importedDocuments > 1) {
+                    labelFeedbackMessage.setText("You succesfully imported "
+                            + importedDocuments + " documents.");
+                } else {
+                    labelFeedbackMessage.setText("You succesfully imported a document.");
+                }
+
             }
-
         }
     }
-    
+
     //Skapar en task och kopplar den till vår progress bar
     public void importDocuments(List<File> list) {
         Task<Void> task;
         task = new Task<Void>() {
             @Override
             public Void call() throws CryptoException, IOException {
-                for (int i = 0; i < list.size(); i++)
-                {
+                for (int i = 0; i < list.size(); i++) {
                     File file = list.get(i);
                     // creates filepath 
                     String filePath = "./DKDocuments/" + file.getName();
@@ -134,7 +135,7 @@ public class HomeFrameController implements Initializable {
 
                     // Creates empty file
                     File encryptedFile = new File(encryptedFilePathEnding);
-                    
+
                     // Encrypts and copies imported file to newly created file 
                     encryption.encrypt("abcdefghijklmnop", file, encryptedFile);
 
@@ -143,32 +144,32 @@ public class HomeFrameController implements Initializable {
 
                     // Send list with documents to DB
                     dbConnection.insertDocument(documentToDB);
-                    
+
                     updateProgress(i, list.size());
                 }
                 //Uppdaterar grafiskt när tråden har avslutats
                 Platform.runLater(new Runnable() {
-                    @Override public void run() {
+                    @Override
+                    public void run() {
                         updateListView();
                         progressBar.setVisible(false);
                     }
                 });
-                
+
                 return null;
             }
         };
-        
+
         progressBar.setVisible(true);
         progressBar.progressProperty().unbind();
         progressBar.progressProperty().bind(task.progressProperty());
-        
+
         Thread th = new Thread(task);
         th.setDaemon(true);
         th.start();
     }
 
-    public Document extractMetaData(File file) throws IOException
-    {
+    public Document extractMetaData(File file) throws IOException {
 
         DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         String fileSize = String.valueOf(file.length());
@@ -236,7 +237,7 @@ public class HomeFrameController implements Initializable {
                 try {
 
                     try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(defaultPath))) {
-                        writer.write(textArea.getText());                     
+                        writer.write(textArea.getText());
                     }
 
                     //Creates path for encrypted file
@@ -252,7 +253,7 @@ public class HomeFrameController implements Initializable {
                     dbConnection.insertDocument(documentToDB);
 
                     updateListView();
-                    
+
                     dialog.close();
 
                 } catch (IOException | CryptoException ex) {
@@ -499,8 +500,7 @@ public class HomeFrameController implements Initializable {
     }
 
     @Override
-    public void initialize(URL url, ResourceBundle rb)
-    {
+    public void initialize(URL url, ResourceBundle rb) {
         dbConnection = new DBConnection();
         lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
