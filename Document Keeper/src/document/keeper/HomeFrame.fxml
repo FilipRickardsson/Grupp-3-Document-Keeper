@@ -4,30 +4,37 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="document.keeper.HomeFrameController">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="document.keeper.HomeFrameController">
    <children>
       <SplitPane dividerPositions="0.11152882205513784" orientation="VERTICAL" prefHeight="800.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
-                  <HBox layoutX="461.0" layoutY="-11.0" prefHeight="77.0" prefWidth="1278.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <HBox id="iphone-toolbar" layoutX="461.0" layoutY="-11.0" prefHeight="77.0" prefWidth="1278.0" stylesheets="@style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                      </padding>
                      <children>
-                        <Button mnemonicParsing="false" prefHeight="45.0" prefWidth="118.0" text="New" />
-                        <Button fx:id="importButton" mnemonicParsing="false" onAction="#handleImportButton" prefHeight="45.0" prefWidth="118.0" text="Import">
+                        <Button id="iphone" fx:id="newButton" mnemonicParsing="false" onAction="#handleNewButton" prefHeight="45.0" prefWidth="118.0" stylesheets="@style.css" text="New" />
+                        <Button id="iphone" fx:id="importButton" mnemonicParsing="false" onAction="#handleImportButton" prefHeight="45.0" prefWidth="118.0" stylesheets="@style.css" text="Import">
                            <HBox.margin>
                               <Insets left="40.0" />
                            </HBox.margin>
                         </Button>
+                        <ProgressBar fx:id="progressBar" prefWidth="200.0" progress="0.0" visible="false">
+                           <HBox.margin>
+                              <Insets left="250.0" top="5.0" />
+                           </HBox.margin>
+                        </ProgressBar>
                      </children>
                   </HBox>
                </children>
@@ -36,48 +43,37 @@
                <children>
                   <HBox layoutX="539.0" layoutY="308.0" prefHeight="715.0" prefWidth="1278.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <HBox prefHeight="715.0" prefWidth="380.0">
+                        <HBox prefHeight="715.0" prefWidth="380.0" style="-fx-background-color: #4f628c;">
                            <padding>
                               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                            </padding>
                            <children>
-                              <VBox spacing="20.0">
+                              <VBox spacing="20.0" style="-fx-background-color: #576a96;">
                                  <children>
                                     <HBox spacing="20.0">
                                        <children>
                                           <TextField fx:id="tfSearch" onKeyReleased="#search" prefHeight="26.0" prefWidth="230.0" promptText="Search..." />
-                                          <Button mnemonicParsing="false" onAction="#handleClearSearchButton" text="Clear Search" />
+                                          <Button id="iphone" mnemonicParsing="false" onAction="#handleClearSearchButton" stylesheets="@style.css" text="Clear Search" />
                                        </children>
                                     </HBox>
                                     <Label fx:id="labelFeedbackMessage" />
-                                    <ListView fx:id="lvDocument" onKeyReleased="#lvDocumentSelected" onMouseClicked="#lvDocumentSelected" prefHeight="695.0" prefWidth="412.0" />                              
+                                    <ListView fx:id="lvDocument" onKeyReleased="#lvDocumentSelected" onMouseClicked="#lvDocumentSelected" prefHeight="695.0" prefWidth="412.0" />
+                                    <Label fx:id="feedbackMessage" />
                                  </children>
                               </VBox>
                            </children>
                         </HBox>
-                        <HBox prefHeight="715.0" prefWidth="920.0">
+                        <HBox prefHeight="715.0" prefWidth="920.0" style="-fx-background-color: #576a96;">
                            <padding>
                               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                            </padding>
                            <children>
-                              <Pane prefHeight="675.0" prefWidth="908.0" style="-fx-background-color: 55;">
+                              <Pane prefHeight="487.0" prefWidth="775.0" style="-fx-background-color: #f9faff;">
                                  <children>
-                                    <Label fx:id="labelChosenFiles" layoutX="29.0" layoutY="55.0" text="Chosen files" />
-                                    <VBox layoutX="745.0" layoutY="404.0" prefHeight="256.0" prefWidth="118.0">
-                                       <children>
-                                          <Button fx:id="openButton" mnemonicParsing="false" onAction="#handleOpenButton" prefHeight="45.0" prefWidth="118.0" text="Open">
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" />
-                                             </VBox.margin>
-                                          </Button>
-                                          <Button fx:id="exportButton" layoutX="691.0" layoutY="509.0" mnemonicParsing="false" onAction="#handleExportButton" prefHeight="45.0" prefWidth="118.0" text="Export">
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" />
-                                             </VBox.margin>
-                                          </Button>
-                                          <Button fx:id="editButton" layoutX="691.0" layoutY="567.0" mnemonicParsing="false" onAction="#handleEditButton" prefHeight="45.0" prefWidth="118.0" text="Edit" />
-                                       </children>
-                                    </VBox>
+                                    <Label fx:id="labelChosenFiles" layoutX="29.0" layoutY="62.0" text="Chosen files" underline="true">
+                                       <font>
+                                          <Font size="13.0" />
+                                       </font></Label>
                                     <Pane fx:id="paneMetadata" layoutX="29.0" layoutY="200.0" prefHeight="200.0" prefWidth="200.0" visible="false">
                                        <children>
                                           <Label fx:id="labelMetadata" text="Metadata" />
@@ -89,20 +85,44 @@
                                        </children>
                                     </Pane>
                                     <Label fx:id="lblSelectedDocument" layoutX="29.0" layoutY="72.0" />
-                                    <Pane layoutX="365.0" layoutY="200.0" prefHeight="200.0" prefWidth="200.0">
+                                    <Pane layoutX="549.0" layoutY="200.0" prefHeight="200.0" prefWidth="200.0">
                                        <children>
                                           <Label fx:id="lblTags" layoutX="14.0" layoutY="31.0" />
-                                          <Label fx:id="lblTagsGraphic" layoutX="14.0" layoutY="14.0" text="Tags:" />
+                                          <Label fx:id="lblTagsGraphic" layoutX="14.0" layoutY="14.0" text="Tags:" underline="true">
+                                             <font>
+                                                <Font size="14.0" />
+                                             </font></Label>
                                        </children>
                                     </Pane>
-                                    <Pane layoutX="365.0" layoutY="427.0" prefHeight="200.0" prefWidth="200.0">
+                                    <Pane layoutX="349.0" layoutY="200.0" prefHeight="200.0" prefWidth="200.0">
                                        <children>
-                                          <Label fx:id="lblLinkedDocumentsGraphic" layoutX="14.0" layoutY="14.0" text="Linked documents:" />
+                                          <Label fx:id="lblLinkedDocumentsGraphic" layoutX="14.0" layoutY="14.0" text="Linked documents:" underline="true">
+                                             <font>
+                                                <Font size="14.0" />
+                                             </font>
+                                          </Label>
                                           <Label fx:id="lblLinkedDocuments" layoutX="14.0" layoutY="31.0" />
                                        </children>
                                     </Pane>
-                                    <Label fx:id="labelExportFeedback" layoutX="11.0" layoutY="563.0" prefHeight="73.0" prefWidth="849.0" textAlignment="CENTER" textFill="RED" />
                                  </children></Pane>
+                              <VBox prefHeight="198.0" prefWidth="118.0">
+                                 <children>
+                                    <Button id="iphone" fx:id="openButton" mnemonicParsing="false" onAction="#handleOpenButton" prefHeight="45.0" prefWidth="118.0" stylesheets="@style.css" text="Open">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button id="iphone" fx:id="exportButton" layoutX="691.0" layoutY="509.0" mnemonicParsing="false" onAction="#handleExportButton" prefHeight="45.0" prefWidth="118.0" stylesheets="@style.css" text="Export">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button id="iphone" fx:id="editButton" layoutX="691.0" layoutY="567.0" mnemonicParsing="false" onAction="#handleEditButton" prefHeight="45.0" prefWidth="118.0" stylesheets="@style.css" text="Edit" />
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets left="10.0" right="-10.0" />
+                                 </HBox.margin>
+                              </VBox>
                            </children>
                         </HBox>
                      </children>
