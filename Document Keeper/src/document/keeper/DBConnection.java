@@ -234,8 +234,8 @@ public class DBConnection {
         for (Document document : documentsToEdit) {
             try {
                 stmt = conn.createStatement();
-                stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_DOCUMENTS "
-                        + "VALUES (" + document.getId() + "," + idOfDocumentToLink + ")");
+//                stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_DOCUMENTS "
+//                        + "VALUES (" + document.getId() + "," + idOfDocumentToLink + ")");
 
                 stmt.close();
             } catch (SQLException sqlExcept) {
@@ -243,6 +243,34 @@ public class DBConnection {
             }
         }
         return failedInsertions != documentsToEdit.size();
+    }
+
+    private Document searchForDocumentByTitle(String documentTitle) {
+        Document searchResult = null;
+        try {
+            stmt = conn.createStatement();
+            stmt.setMaxRows(1);
+            ResultSet results = stmt.executeQuery(""
+                    + "SELECT DISTINCT id, title, type, file_size, date_imported, date_created FROM APP.DOCUMENT\n"
+                    + "WHERE \n"
+                    + "title = '" + documentTitle + "'");
+
+            while (results.next()) {
+                searchResult = new Document(
+                        results.getInt(1),
+                        results.getString(2),
+                        results.getString(3),
+                        results.getString(4),
+                        results.getString(5),
+                        results.getString(6));
+            }
+
+            results.close();
+            stmt.close();
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
+        }
+        return searchResult;
     }
 
 }

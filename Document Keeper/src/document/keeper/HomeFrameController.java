@@ -338,7 +338,6 @@ public class HomeFrameController implements Initializable {
                 //Visa bara gemensamma taggar
                 commonTags.retainAll(d.getTags());
                 commonLinkedDocuments.retainAll(d.getLinkedDocuments());
-
                 lblSelectedDocument.setText(lblSelectedDocument.getText() + ", " + d.toString());
             }
         });
@@ -352,24 +351,34 @@ public class HomeFrameController implements Initializable {
             }
         });
 
-        commonLinkedDocuments.stream().forEach((d)
-                -> {
-            if (lblLinkedDocuments.getText().equals("")) {
-                documentList.stream().forEach((doc)
-                        -> {
-                    if (d.equals(doc.getId())) {
-                        lblLinkedDocuments.setText(doc.getTitle());
-                    }
-                });
-            } else {
-                documentList.stream().forEach((doc)
-                        -> {
-                    if (d.equals(doc.getId())) {
-                        lblLinkedDocuments.setText(lblLinkedDocuments.getText() + "\n" + doc.getTitle());
-                    }
-                });
+        for (int i = 0; i < documentList.size(); i++) {
+            //System.out.println(documentList.get(i).getId());
+            for (int j = 0; j < documentList.get(i).getLinkedDocuments().size(); j++) {
+                System.out.println(documentList.get(i).getLinkedDocuments().get(i).getTitle() + " och " + documentList.get(j).getLinkedDocuments().get(j).getTitle());
+                if(documentList.get(i).getId() == documentList.get(i).getLinkedDocuments().get(j).getId()) {
+                    System.out.println("match");
+                }
             }
-        });
+        }
+        
+//        commonLinkedDocuments.stream().forEach((d)
+//                -> {
+//            if (lblLinkedDocuments.getText().equals("")) {
+//                documentList.stream().forEach((doc)
+//                        -> {
+//                    if (d.getId() == doc.getId()) {
+//                        lblLinkedDocuments.setText(doc.getTitle());
+//                    }
+//                });
+//            } else {
+//                documentList.stream().forEach((doc)
+//                        -> {
+//                    if (d.getId() == doc.getId()) {
+//                        lblLinkedDocuments.setText(lblLinkedDocuments.getText() + "\n" + doc.getTitle());
+//                    }
+//                });
+//            }
+//        });
     }
 
     public void updateListView() {
