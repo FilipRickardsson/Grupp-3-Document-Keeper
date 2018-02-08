@@ -26,7 +26,7 @@
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                      </padding>
                      <children>
-                        <Button mnemonicParsing="false" prefHeight="45.0" prefWidth="118.0" text="New" />
+                        <Button fx:id="newButton" mnemonicParsing="false" onAction="#handleNewButton" prefHeight="45.0" prefWidth="118.0" text="New" />
                         <Button fx:id="importButton" mnemonicParsing="false" onAction="#handleImportButton" prefHeight="45.0" prefWidth="118.0" text="Import">
                            <HBox.margin>
                               <Insets left="40.0" />
@@ -59,7 +59,8 @@
                                        </children>
                                     </HBox>
                                     <Label fx:id="labelFeedbackMessage" />
-                                    <ListView fx:id="lvDocument" onKeyReleased="#lvDocumentSelected" onMouseClicked="#lvDocumentSelected" prefHeight="695.0" prefWidth="412.0" />                              
+                                    <ListView fx:id="lvDocument" onKeyReleased="#lvDocumentSelected" onMouseClicked="#lvDocumentSelected" prefHeight="695.0" prefWidth="412.0" />
+                                    <Label fx:id="feedbackMessage" />
                                  </children>
                               </VBox>
                            </children>
@@ -72,7 +73,7 @@
                               <Pane prefHeight="675.0" prefWidth="908.0" style="-fx-background-color: 55;">
                                  <children>
                                     <Label fx:id="labelChosenFiles" layoutX="29.0" layoutY="55.0" text="Chosen files" />
-                                    <VBox layoutX="745.0" layoutY="404.0" prefHeight="256.0" prefWidth="118.0">
+                                    <VBox layoutX="745.0" layoutY="462.0" prefHeight="198.0" prefWidth="118.0">
                                        <children>
                                           <Button fx:id="openButton" mnemonicParsing="false" onAction="#handleOpenButton" prefHeight="45.0" prefWidth="118.0" text="Open">
                                              <VBox.margin>
@@ -110,7 +111,6 @@
                                           <Label fx:id="lblLinkedDocuments" layoutX="14.0" layoutY="31.0" />
                                        </children>
                                     </Pane>
-                                    <Label fx:id="labelExportFeedback" layoutX="11.0" layoutY="563.0" prefHeight="73.0" prefWidth="849.0" textAlignment="CENTER" textFill="RED" />
                                  </children></Pane>
                            </children>
                         </HBox>
