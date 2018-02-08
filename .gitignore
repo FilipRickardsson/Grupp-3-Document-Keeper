@@ -28,3 +28,5 @@ hs_err_pid*
 /Document\ Keeper/dist/
 /Document\ Keeper/nbproject/private/
 /Document\ Keeper/build/built-jar.properties
+
+Document Keeper/DB/DocumentKeeperDB/log/
