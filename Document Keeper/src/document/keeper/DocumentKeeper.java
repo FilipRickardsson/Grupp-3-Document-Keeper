@@ -38,7 +38,7 @@ public class DocumentKeeper extends Application
         primaryStage.setOnCloseRequest(evt ->
         {
             // prevent window from closing
-//            evt.consume();
+            evt.consume();
 
             // call shutdown() to check and delete files
             shutdown(primaryStage);
@@ -72,12 +72,15 @@ public class DocumentKeeper extends Application
                 Alert alert = new Alert(Alert.AlertType.NONE, "You need to close other applications using decrypted files!", ButtonType.OK);
                 if (alert.showAndWait().orElse(ButtonType.NO) == ButtonType.OK)
                 {
-                    
+
                 }
             } else
             {
                 mainWindow.close();
             }
+        } else
+        {
+            mainWindow.close();
         }
     }
 

@@ -465,8 +465,8 @@ public class HomeFrameController implements Initializable {
     }
 
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        System.out.println("debagger HomeFrameController");
+    public void initialize(URL url, ResourceBundle rb)
+    {
         dbConnection = new DBConnection();
         lvDocument.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
