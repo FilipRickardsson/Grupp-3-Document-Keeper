@@ -4,7 +4,14 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
@@ -31,6 +38,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -148,34 +156,74 @@ public class HomeFrameController implements Initializable {
     //Creates new textfile with default name, located in temp folder. When saved 
     //decrypts and places file in DKDocuments folder  
     @FXML
-    void handleNewButton(ActionEvent event) throws CryptoException, IOException {
-     
-        DateFormat df = new SimpleDateFormat("ddMMyyHHmmss");
+    void handleNewButton(ActionEvent event) throws CryptoException, IOException, InterruptedException {
+
+        DateFormat df = new SimpleDateFormat("ddMMyyyy HHmmss");
         Date date = new Date();
         String defaultName = df.format(date);
-        File defaultFile = new File("./DKDocuments/Temp/" + defaultName +".txt");
+        File defaultFile = new File("./DKDocuments/Temp/" + defaultName + ".txt");
         defaultFile.createNewFile();
 
-        // Creates path for encrypted file
-        File encryptedFile = new File("./DKDocuments/" + defaultName  + ".encoded");
-
-        // Encrypts and copies imported file to newly created file 
-        encryption.encrypt("abcdefghijklmnop", defaultFile, encryptedFile);
-
-        // Creates document with extracted metadata
-        Document documentToDB = extractMetaData(defaultFile);
-
-        // Send list with documents to DB
-        dbConnection.insertDocument(documentToDB);
-
         try {
-            // Open decoded file with default program
+            // Open file with default texteditor
             Desktop.getDesktop().open(defaultFile);
         } catch (IOException ex) {
             Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        updateListView();
+        // Thread that checks if the document has changed. On change saves to DB and places in directory
+        Runnable runNewDocument = new Runnable() {
+            public void run() {
+                final Path path = Paths.get("./DKDocuments/Temp/");
+                System.out.println("path " + path);
+                try (final WatchService watchService = FileSystems.getDefault().newWatchService()) {
+                    final WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+                    while (true) {
+                        final WatchKey wk = watchService.take();
+                        for (WatchEvent<?> event : wk.pollEvents()) {
+                            //we only register "ENTRY_MODIFY" so the context is always a Path.
+                            final Path changed = (Path) event.context();
+                            System.out.println("changed " + changed);
+                            if (changed.endsWith(defaultName + ".txt")) {
+                            
+                            // Creates path for encrypted file
+                            File encryptedFile = new File("./DKDocuments/" + defaultName + ".encoded");
+
+                            // Encrypts and copies imported file to newly created file 
+                            encryption.encrypt("abcdefghijklmnop", defaultFile, encryptedFile);
+
+                            // Creates document with extracted metadata
+                            Document documentToDB = extractMetaData(defaultFile);
+
+                            // Send list with documents to DB
+                            dbConnection.insertDocument(documentToDB);
+
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    updateListView();
+                                }
+                            });
+  
+                                System.out.println("My file has changed");
+                               // defaultFile.delete();
+                            }
+                        }
+                        // reset the key
+                        boolean valid = wk.reset();
+                        if (!valid) {
+                            System.out.println("Key has been unregistered");
+                        }
+                    }
+                } catch (IOException| InterruptedException |CryptoException ex) {
+                    Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
+                } 
+            }
+        };
+
+        Thread thread = new Thread(runNewDocument);
+        thread.start();
+
     }
 
     @FXML
