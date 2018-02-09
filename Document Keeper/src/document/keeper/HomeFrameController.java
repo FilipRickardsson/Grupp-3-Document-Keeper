@@ -171,7 +171,7 @@ public class HomeFrameController implements Initializable {
 
     public Document extractMetaData(File file) throws IOException {
 
-        DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String fileSize = String.valueOf(file.length());
         String currentTime = df.format(Calendar.getInstance().getTime());
 
@@ -406,19 +406,26 @@ public class HomeFrameController implements Initializable {
         lblFileSize.setText("File size: " + doc.getFile_size());
         lblDateImported.setText("Date imported: " + doc.getDate_imported());
         lblDateCreated.setText("Date created: " + doc.getDate_created());
-
-        if (doc.getTags().size() > 0) {
-            doc.getTags().stream().forEach((tag)
-                    -> {
-                if (lblTags.getText().equals("")) {
+                
+        if (doc.getTags().size() > 0) 
+        {
+            doc.getTags().stream().forEach((tag) ->
+            {
+                if (lblTags.getText().equals(""))
+                {
                     lblTags.setText(tag);
                 } else {
                     lblTags.setText(lblTags.getText() + "\n" + tag);
                 }
             });
-
-            doc.getLinkedDocuments().stream().forEach((document)
-                    -> {
+        } else {
+            lblTagsGraphic.setText("No tags to display");
+        }
+        
+        if (doc.getLinkedDocuments().size() > 0) 
+        {
+            doc.getLinkedDocuments().stream().forEach((document) ->
+            {
                 System.out.println(document);
                 documentList.stream().filter((d) -> (d.getId() == document)).forEach((d)
                         -> {
@@ -430,7 +437,6 @@ public class HomeFrameController implements Initializable {
                 });
             });
         } else {
-            lblTagsGraphic.setText("No tags to display");
             lblLinkedDocumentsGraphic.setText("No linked documents");
         }
     }

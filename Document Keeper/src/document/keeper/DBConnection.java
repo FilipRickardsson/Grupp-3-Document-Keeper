@@ -76,11 +76,33 @@ public class DBConnection {
                     results.getString(4),
                     results.getString(5),
                     results.getString(6));
+            
             newDocument.setTags(getDocumentTags(newDocument.getId()));
-
+            newDocument.setLinkedDocuments(getLinkedDocuments(newDocument.getId()));
+            
             fetchedDocuments.add(newDocument);
         }
         return fetchedDocuments;
+    }
+    
+    private List<Integer> getLinkedDocuments(int documentId) {
+        List <Integer> linkedDocuments = new ArrayList();
+        try {
+            stmt = conn.createStatement();
+            ResultSet results = stmt.executeQuery("SELECT DOCUMENTID2 FROM APP.DOCUMENT_HAS_DOCUMENTS "
+                + "WHERE DOCUMENTID1 = " + documentId);
+            
+            while (results.next()) {
+                linkedDocuments.add(results.getInt(1));
+            }
+            
+            results.close();
+            stmt.close();
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
+        }
+        
+        return linkedDocuments;
     }
 
     private List<String> getDocumentTags(int documentId) {
@@ -97,12 +119,17 @@ public class DBConnection {
             while (results.next()) {
                 tags.add(results.getString(1));
             }
-
+            
+            if (tags.isEmpty()) {
+                tags.add("untagged");
+            }
+            
             results.close();
             stmt.close();
         } catch (SQLException sqlExcept) {
             sqlExcept.printStackTrace();
         }
+        
         return tags;
     }
 

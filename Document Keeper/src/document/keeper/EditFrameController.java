@@ -29,17 +29,15 @@ public class EditFrameController implements Initializable {
     private List<String> tagSuggestions;
     private List<Document> documentsToEdit;
 
-    @FXML
-    Label lblHeader;
+    @FXML Label lblHeader;
 
-    @FXML
-    ListView lvTags;
+    @FXML ListView lvTags, lvLinkedDocuments;
 
-    @FXML
-    TextField tfAddTag;
+    @FXML TextField tfAddTag;
 
-    @FXML
-    ObservableList<String> obsTagsList;
+    @FXML ObservableList<String> obsTagsList;
+    
+    @FXML ObservableList<Document> obsDocumentList;
 
     public void setDocumentsToEdit(List documentsToEdit) {
         this.documentsToEdit = documentsToEdit;
@@ -60,19 +58,25 @@ public class EditFrameController implements Initializable {
         lblHeader.setText(headerTxt);
     }
 
-    private void addTagsToTagsListView() {
+    private void addListViewItems() {
         List commonTags = new ArrayList();
+        List commonDocuments = new ArrayList();
 
         for (int i = 0; i < documentsToEdit.size(); i++) {
             if (i == 0) {
                 commonTags.addAll(documentsToEdit.get(i).getTags());
+                commonDocuments.addAll(documentsToEdit.get(i).getLinkedDocuments());
             } else {
                 //Visa bara gemensamma taggar
                 commonTags.retainAll(documentsToEdit.get(i).getTags());
+                commonDocuments.addAll(documentsToEdit.get(i).getLinkedDocuments());
             }
 
             obsTagsList.clear();
             obsTagsList.addAll(commonTags);
+            
+            obsDocumentList.clear();
+            obsDocumentList.addAll(commonDocuments);
         }
     }
 
@@ -117,13 +121,15 @@ public class EditFrameController implements Initializable {
 
     public void initScene() {
         setHeaderText();
-        addTagsToTagsListView();
+        addListViewItems();
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         obsTagsList = FXCollections.observableArrayList();
+        obsDocumentList = FXCollections.observableArrayList();
         lvTags.setItems(obsTagsList);
+        lvLinkedDocuments.setItems(obsDocumentList);
         tagSuggestions = new ArrayList<>();
         tagSuggestions.add("Bosse");
         tagSuggestions.add("Sossa");
