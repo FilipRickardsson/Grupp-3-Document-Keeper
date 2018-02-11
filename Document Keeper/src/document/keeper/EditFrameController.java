@@ -16,11 +16,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.controlsfx.control.textfield.TextFields;
 
 public class EditFrameController implements Initializable {
 
@@ -28,18 +30,17 @@ public class EditFrameController implements Initializable {
     private SuggestionProvider<String> provider;
     private List<String> tagSuggestions;
     private List<Document> documentsToEdit;
+    private List<Document> allDocuments;
 
-    @FXML
-    Label lblHeader;
+    @FXML Label lblHeader;
 
-    @FXML
-    ListView lvTags;
+    @FXML ListView lvTags, lvLinkedDocuments;
 
-    @FXML
-    TextField tfAddTag;
+    @FXML TextField tfAddTag, tfAddDocument;
 
-    @FXML
-    ObservableList<String> obsTagsList;
+    @FXML ObservableList<String> obsTagsList;
+    
+    @FXML ObservableList<Document> obsDocumentList;
 
     public void setDocumentsToEdit(List documentsToEdit) {
         this.documentsToEdit = documentsToEdit;
@@ -60,20 +61,37 @@ public class EditFrameController implements Initializable {
         lblHeader.setText(headerTxt);
     }
 
-    private void addTagsToTagsListView() {
+    private void addListViewItems() {
         List commonTags = new ArrayList();
+        List commonDocuments = new ArrayList();
+        List documents = new ArrayList();
 
         for (int i = 0; i < documentsToEdit.size(); i++) {
             if (i == 0) {
                 commonTags.addAll(documentsToEdit.get(i).getTags());
+                commonDocuments.addAll(documentsToEdit.get(i).getLinkedDocuments());
             } else {
                 //Visa bara gemensamma taggar
                 commonTags.retainAll(documentsToEdit.get(i).getTags());
-            }
-
-            obsTagsList.clear();
-            obsTagsList.addAll(commonTags);
+                commonDocuments.retainAll(documentsToEdit.get(i).getLinkedDocuments());
+            }          
         }
+        
+        //This for-loop is to write out the correct documents, since we only have
+        //their id
+        for (int i = 0; i < commonDocuments.size(); i++) {
+            for (int j = 0; j < allDocuments.size(); j++) {
+                if (commonDocuments.get(i).equals(allDocuments.get(j).getId())) {
+                    documents.add(allDocuments.get(j));
+                }
+            }
+        }
+        
+        obsTagsList.clear();
+        obsTagsList.addAll(commonTags);
+        
+        obsDocumentList.clear();
+        obsDocumentList.addAll(documents);
     }
 
     @FXML
@@ -99,6 +117,31 @@ public class EditFrameController implements Initializable {
                     obsTagsList.remove(t);
                 }
             });
+            
+            tfAddTag.setText("");
+        }
+    }
+    
+    @FXML private void handleButtonAddDocument() {
+        String documentName = tfAddDocument.getText();
+        Document documentToAdd;
+        
+        if (documentName.matches("[a-zA-z0-9]*") && !documentName.contains(" ") && documentName.length() > 0) {
+            for (Document d : allDocuments) {
+                if (d.getTitle().equals(documentName)) {
+                    documentToAdd = d;
+                    dbConnection.addLinkedDocument(documentsToEdit, documentToAdd);
+                    obsDocumentList.add(documentToAdd);
+                    tfAddDocument.setText("");
+                } else {
+                    if (!tfAddDocument.getText().equals("")) {
+                        Alert alert = new Alert(AlertType.NONE, "No document found, please enter the title of "
+                                + "an existing document", ButtonType.OK);
+                        alert.showAndWait();
+                        tfAddDocument.setText("");
+                    }
+                }
+            }
         }
     }
 
@@ -117,16 +160,18 @@ public class EditFrameController implements Initializable {
 
     public void initScene() {
         setHeaderText();
-        addTagsToTagsListView();
+        addListViewItems();
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        dbConnection = new DBConnection();
         obsTagsList = FXCollections.observableArrayList();
+        obsDocumentList = FXCollections.observableArrayList();
         lvTags.setItems(obsTagsList);
+        lvLinkedDocuments.setItems(obsDocumentList);
         tagSuggestions = new ArrayList<>();
-        tagSuggestions.add("Bosse");
-        tagSuggestions.add("Sossa");
+        allDocuments = dbConnection.getAllDocuments();
 
         provider = SuggestionProvider.create(tagSuggestions);
         new AutoCompletionTextFieldBinding<>(tfAddTag, provider);

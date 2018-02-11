@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -13,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="document.keeper.HomeFrameController">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="document.keeper.HomeFrameController">
    <children>
       <SplitPane dividerPositions="0.11152882205513784" orientation="VERTICAL" prefHeight="800.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
@@ -84,7 +89,7 @@
                                           <Label fx:id="lblDateCreated" layoutY="100.0" text="Date created: 2018-02-01" />
                                        </children>
                                     </Pane>
-                                    <Label fx:id="lblSelectedDocument" layoutX="29.0" layoutY="72.0" />
+                                    <Label fx:id="lblSelectedDocument" layoutX="29.0" layoutY="82.0" />
                                     <Pane layoutX="549.0" layoutY="200.0" prefHeight="200.0" prefWidth="200.0">
                                        <children>
                                           <Label fx:id="lblTags" layoutX="14.0" layoutY="31.0" />
@@ -94,16 +99,12 @@
                                              </font></Label>
                                        </children>
                                     </Pane>
-                                    <Pane layoutX="349.0" layoutY="200.0" prefHeight="200.0" prefWidth="200.0">
-                                       <children>
-                                          <Label fx:id="lblLinkedDocumentsGraphic" layoutX="14.0" layoutY="14.0" text="Linked documents:" underline="true">
-                                             <font>
-                                                <Font size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Label fx:id="lblLinkedDocuments" layoutX="14.0" layoutY="31.0" />
-                                       </children>
-                                    </Pane>
+                                    <Pane fx:id="paneLinkedDocuments" layoutX="349.0" layoutY="236.0" prefHeight="208.0" prefWidth="144.0" />
+                                    <Label fx:id="lblLinkedDocumentsGraphic" layoutX="349.0" layoutY="214.0" text="Linked documents:" underline="true">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
                                  </children></Pane>
                               <VBox prefHeight="198.0" prefWidth="118.0">
                                  <children>
