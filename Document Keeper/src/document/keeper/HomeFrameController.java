@@ -1,14 +1,11 @@
 package document.keeper;
 
 import java.awt.Desktop;
-import java.awt.Insets;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import static java.nio.file.Files.list;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
@@ -37,8 +34,6 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -65,59 +60,51 @@ public class HomeFrameController implements Initializable {
     Encryption encryption = new Encryption();
     List<Document> documentList;
 
-    @FXML
-    private TextField tfSearch;
+    @FXML private TextField tfSearch;
 
-    @FXML
-    private ObservableList<Document> obsDocumentList;
+    @FXML private ObservableList<Document> obsDocumentList;
 
-    @FXML
-    private ListView lvDocument;
+    @FXML private ListView lvDocument;
 
-    @FXML
-    private Button newButton, importButton, exportButton, editButton, openButton;
+    @FXML private Button newButton, importButton, exportButton, editButton, openButton;
 
-    @FXML
-    private Label labelChosedFiles, labelMetadata, lblSelectedDocument, lblTitle,
-            lblType, lblFileSize, lblDateImported, lblDateCreated, lblTags, lblLinkedDocuments,
-            lblLinkedDocumentsfeedbackMessage, labelFeedbackMessage, lblLinkedDocumentsGraphic, lblTagsGraphic, labelExportFeedback;
+    @FXML private Label labelChosedFiles, labelMetadata, lblSelectedDocument, lblTitle,
+            lblType, lblFileSize, lblDateImported, lblDateCreated, lblTags,
+            lblLinkedDocumentsfeedbackMessage, labelFeedbackMessage, lblLinkedDocumentsGraphic, 
+            lblTagsGraphic, labelExportFeedback;
 
-    @FXML
-    private Pane paneMetadata;
+    @FXML private Pane paneMetadata, paneLinkedDocuments;
 
-    @FXML
-    private ProgressBar progressBar;
+    @FXML private ProgressBar progressBar;
 
-    @FXML
-    void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException {
-        {
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+    @FXML private void handleImportButton(ActionEvent event) throws NoSuchAlgorithmException, 
+            NoSuchPaddingException, InvalidKeyException, IOException, CryptoException, SQLException {
+        
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            int documentListSize = documentList.size();
+        int documentListSize = documentList.size();
 
-            //Opens file chooser
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Import files");
+        //Opens file chooser
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Import files");
 
-            //File selectedFile = fileChooser.showOpenDialog(stage);
-            List<File> list = fileChooser.showOpenMultipleDialog(stage);
+        //File selectedFile = fileChooser.showOpenDialog(stage);
+        List<File> list = fileChooser.showOpenMultipleDialog(stage);
 
-            if (list != null) {
-                importDocuments(list);
+        if (list != null) {
+            importDocuments(list);
 
-                //Compare list before with list after 
-                int importedDocuments = documentList.size() - documentListSize;
+            //Compare list before with list after 
+            int importedDocuments = documentList.size() - documentListSize;
 
-                //Message about imported files       
-                if (importedDocuments > 1) {
-                    labelFeedbackMessage.setText("You succesfully imported "
-                            + importedDocuments + " documents.");
-                } else {
-                    labelFeedbackMessage.setText("You succesfully imported a document.");
-                }
-
+            //Message about imported files       
+            if (importedDocuments > 1) {
+                labelFeedbackMessage.setText("You succesfully imported "
+                        + importedDocuments + " documents.");
+            } else {
+                labelFeedbackMessage.setText("You succesfully imported a document.");
             }
-        }
+        } 
     }
 
     //Skapar en task och kopplar den till vår progress bar
@@ -196,7 +183,7 @@ public class HomeFrameController implements Initializable {
     }
 
     @FXML
-    void handleNewButton(ActionEvent event) throws CryptoException, IOException, InterruptedException {
+    private void handleNewButton(ActionEvent event) throws CryptoException, IOException, InterruptedException {
 
         Button saveBtn = new Button();
         saveBtn.setText("Save");
@@ -292,13 +279,10 @@ public class HomeFrameController implements Initializable {
             } catch (IOException ex) {
                 Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
             }
-
         });
-
     }
 
-    @FXML
-    void handleExportButton(ActionEvent event) {
+    @FXML void handleExportButton(ActionEvent event) {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         // Selected docs
         ObservableList<Document> documentsSelected = (ObservableList<Document>) lvDocument.getSelectionModel().getSelectedItems();
@@ -308,8 +292,7 @@ public class HomeFrameController implements Initializable {
         File dir = choose.showDialog(stage);
         System.out.println("dir " + dir);
 
-        documentsSelected.stream().forEach((d)
-                -> {
+        documentsSelected.stream().forEach((d) -> {
             String title = d.getTitle();
             String type = d.getType();
 
@@ -326,21 +309,17 @@ public class HomeFrameController implements Initializable {
                 labelExportFeedback.setText("Could not export " + title + "." + type);
                 //Logger.getLogger(HomeFrameController.class.getName()).log(Level.SEVERE, null, ex);
             }
-
         });
-
     }
 
-    @FXML
-    void handleEditButton(ActionEvent event) {
+    @FXML void handleEditButton(ActionEvent event) {
         switchToEditFrameScene(event);
     }
 
-    @FXML
-    private void lvDocumentSelected() {
+    @FXML private void lvDocumentSelected() {
         ObservableList<Document> documentsSelected = (ObservableList<Document>) lvDocument.getSelectionModel().getSelectedItems();
         lblSelectedDocument.setText("");
-        lblLinkedDocuments.setText("");
+        //lblLinkedDocuments.setText("");
         lblTags.setText("");
         paneMetadata.setVisible(false);
 
@@ -353,19 +332,16 @@ public class HomeFrameController implements Initializable {
         }
     }
 
-    @FXML
-    private void search() {
+    @FXML private void search() {
         obsDocumentList.clear();
         obsDocumentList.addAll(
                 dbConnection.searchForDocumentByTitleOrTag(tfSearch.getText()));
     }
 
-    @FXML
-    void handleClearSearchButton() {
+    @FXML void handleClearSearchButton() {
         tfSearch.clear();
         obsDocumentList.clear();
-        obsDocumentList.addAll(
-                dbConnection.getAllDocuments());
+        obsDocumentList.addAll(dbConnection.getAllDocuments());
     }
 
     private void switchToEditFrameScene(ActionEvent event) {
@@ -398,7 +374,7 @@ public class HomeFrameController implements Initializable {
         lblTagsGraphic.setText("Tags:");
         lblLinkedDocumentsGraphic.setText("Linked documents:");
         lblTags.setText("");
-        lblLinkedDocuments.setText("");
+        paneLinkedDocuments.getChildren().clear();
         paneMetadata.setVisible(true); //Visar metadata
 
         lblTitle.setText("Title: " + doc.getTitle());
@@ -424,33 +400,56 @@ public class HomeFrameController implements Initializable {
         
         if (doc.getLinkedDocuments().size() > 0) 
         {
+            List<Label> labelList = new ArrayList();
+            
             doc.getLinkedDocuments().stream().forEach((document) ->
             {
-                System.out.println(document);
-                documentList.stream().filter((d) -> (d.getId() == document)).forEach((d)
-                        -> {
-                    if (lblLinkedDocuments.getText().equals("")) {
-                        lblLinkedDocuments.setText(d.getTitle());
-                    } else {
-                        lblLinkedDocuments.setText(lblLinkedDocuments.getText() + "\n" + d.getTitle());
-                    }
+                documentList.stream().filter((d) -> (d.getId() == document)).forEach((d) -> {
+                    labelList.add(new Label(d.getTitle()));
                 });
             });
+            
+            for (int i = 0; i < labelList.size(); i++) {
+                Label label = labelList.get(i);
+                paneLinkedDocuments.getChildren().add(labelList.get(i));
+                labelList.get(i).setLayoutY(i * 20);
+                labelList.get(i).setOnMouseClicked(e -> handleMousePress(label.getText()));
+                labelList.get(i).setOnMouseEntered(e -> onLabelEntered(label));
+                labelList.get(i).setOnMouseExited(e -> onLabelExited(label));
+            }
         } else {
             lblLinkedDocumentsGraphic.setText("No linked documents");
         }
     }
+    
+    //This method selects the file that the user selects in the linked document list
+    @FXML private void handleMousePress(String fileName) {
+        for (int i = 0; i < documentList.size(); i++) {
+            if (documentList.get(i).getTitle().equals(fileName)) {
+                lvDocument.getSelectionModel().clearAndSelect(i);
+                lvDocumentSelected();
+            }
+        }
+    }
+    
+    @FXML private void onLabelEntered(Label label) {
+        label.setStyle("-fx-font-weight: bold");
+    }
+    
+    @FXML private void onLabelExited(Label label) {
+        label.setStyle("-fx-font-weight: regular");
+    }
 
-    private void displayMultipleFiles(List<Document> documentList) {
+    private void displayMultipleFiles(List<Document> selectedDocuments) {
         List<String> commonTags = new ArrayList<>();
         List<Integer> commonLinkedDocuments = new ArrayList<>();
 
+        paneLinkedDocuments.getChildren().clear();
         lblTagsGraphic.setText("Common tags:");
         lblLinkedDocumentsGraphic.setText("Common linked documents:");
         lblSelectedDocument.setText("");
 
-        documentList.stream().forEach((d)
-                -> {
+        selectedDocuments.stream().forEach((d) -> {
             if (lblSelectedDocument.getText().equals("")) {
                 commonTags.addAll(d.getTags());
                 commonLinkedDocuments.addAll(d.getLinkedDocuments());
@@ -465,33 +464,40 @@ public class HomeFrameController implements Initializable {
             }
         });
 
-        commonTags.stream().forEach((t)
-                -> {
+        commonTags.stream().forEach((t) -> {
             if (lblTags.getText().equals("")) {
                 lblTags.setText(t);
             } else {
                 lblTags.setText(lblTags.getText() + "\n" + t);
             }
         });
+        
+        List<Label> labelList = new ArrayList();
 
-        commonLinkedDocuments.stream().forEach((d)
-                -> {
-            if (lblLinkedDocuments.getText().equals("")) {
-                documentList.stream().forEach((doc)
-                        -> {
-                    if (d.equals(doc.getId())) {
-                        lblLinkedDocuments.setText(doc.getTitle());
+        selectedDocuments.stream().forEach((doc) -> {
+            doc.getLinkedDocuments().stream().forEach((document) ->
+            {
+                documentList.stream().filter((d) -> (d.getId() == document)).forEach((d) -> {
+                    boolean duplicate = false;
+                    for (int i = 0; i < labelList.size(); i++) {
+                        if (labelList.get(i).getText().equals(d.getTitle())) {
+                            duplicate = true;
+                        }
+                    }
+                    
+                    if (!duplicate) {
+                        labelList.add(new Label(d.getTitle()));
                     }
                 });
-            } else {
-                documentList.stream().forEach((doc)
-                        -> {
-                    if (d.equals(doc.getId())) {
-                        lblLinkedDocuments.setText(lblLinkedDocuments.getText() + "\n" + doc.getTitle());
-                    }
-                });
-            }
+            });
         });
+        
+        for (int i = 0; i < labelList.size(); i++) {
+            Label label = labelList.get(i);
+            paneLinkedDocuments.getChildren().add(labelList.get(i));
+            labelList.get(i).setLayoutY(i * 20);
+            labelList.get(i).setOnMouseClicked(e -> handleMousePress(label.getText()));
+        }
     }
 
     public void updateListView() {

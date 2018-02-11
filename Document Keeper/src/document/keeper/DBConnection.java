@@ -234,4 +234,23 @@ public class DBConnection {
         return failedInsertions != documentsToEdit.size();
     }
 
+    public void addLinkedDocument(List<Document> docs, Document docToAdd) {
+        System.out.println("addLinkedDocument" + docToAdd.getId());
+        docs.stream().forEach((d) -> {
+            try {
+                System.out.println(d.getId() + " " + docToAdd.getId());
+                stmt = conn.createStatement();
+                stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_DOCUMENTS "
+                        + "(DOCUMENTID1, DOCUMENTID2) VALUES (" + d.getId() + ", " + docToAdd.getId() + ")");
+                
+                stmt = conn.createStatement();
+                stmt.executeUpdate("INSERT INTO APP.DOCUMENT_HAS_DOCUMENTS "
+                        + "(DOCUMENTID1, DOCUMENTID2) VALUES (" + docToAdd.getId() + ", " + d.getId() + ")");
+                
+                stmt.close();
+            } catch (SQLException sqlExcept) {
+                System.out.println(sqlExcept.getMessage());
+            }
+        });
+    }
 }

@@ -99,16 +99,12 @@
                                              </font></Label>
                                        </children>
                                     </Pane>
-                                    <Pane layoutX="349.0" layoutY="200.0" prefHeight="200.0" prefWidth="200.0">
-                                       <children>
-                                          <Label fx:id="lblLinkedDocumentsGraphic" layoutX="14.0" layoutY="14.0" text="Linked documents:" underline="true">
-                                             <font>
-                                                <Font size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Label fx:id="lblLinkedDocuments" layoutX="14.0" layoutY="31.0" />
-                                       </children>
-                                    </Pane>
+                                    <Pane fx:id="paneLinkedDocuments" layoutX="349.0" layoutY="236.0" prefHeight="208.0" prefWidth="144.0" />
+                                    <Label fx:id="lblLinkedDocumentsGraphic" layoutX="349.0" layoutY="214.0" text="Linked documents:" underline="true">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
                                  </children></Pane>
                               <VBox prefHeight="198.0" prefWidth="118.0">
                                  <children>
